@@ -20,13 +20,15 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
                       max_growth=2, \
                       min_growth=0.5,\
                       clipping_fn = lambda x: np.clip(x, 0.0, 1.0)):
-    
-    stride = min(stride, parameter_steps)
+    if stride > parameter_steps:
+      print(f" stride {stride} greater than parameter ticks {parameter_steps}")
+      print(f"\t\tUsing {parameter_steps} for stride instead")
+      stride = min([stride, parameter_steps])
     
     dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps)[:,None, None,None]
     krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps)[:,None,None,None]
     
-    results = np.zeros((dts.shape[0], krs.shape[0], 4))
+    results_img = np.zeros((dts.shape[0], krs.shape[0], 4))
 
     native_dim_h = pattern.shape[-2]
     native_dim_w = pattern.shape[-1]
@@ -69,8 +71,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
         accumulated_t = np.zeros((grid.shape[0], grid.shape[1],1,1))
         total_steps = np.zeros((grid.shape[0], grid.shape[1],1,1))
         
-        
-        results_part = np.zeros((grid.shape[0], grid.shape[1], 4))
+        results_img_part = np.zeros((grid.shape[0], grid.shape[1], 4))
         
         update_step = make_update_step(my_update, kernel, dts, clipping_fn)
         
@@ -94,13 +95,13 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
             total_steps += 1 * (1 - done)
             total_steps_counter += 1
          
-        results_part = results_part.at[done.squeeze() <= 0].set(green_cmap(accumulated_t[done.squeeze() <= 0] / max_t).squeeze())  
-        results_part = results_part.at[explode.squeeze() > 0].set(red_cmap(accumulated_t[explode.squeeze() > 0] / max_t).squeeze())
-        results_part = results_part.at[vanish.squeeze() > 0].set(blue_cmap(accumulated_t[vanish.squeeze() > 0] / max_t).squeeze())
+        results_img_part = results_img_part.at[done.squeeze() <= 0].set(green_cmap(accumulated_t[done.squeeze() <= 0] / max_t).squeeze())  
+        results_img_part = results_img_part.at[explode.squeeze() > 0].set(red_cmap(accumulated_t[explode.squeeze() > 0] / max_t).squeeze())
+        results_img_part = results_img_part.at[vanish.squeeze() > 0].set(blue_cmap(accumulated_t[vanish.squeeze() > 0] / max_t).squeeze())
         
-        results = results.at[jj*stride:(jj+1)*stride,:,:].set(results_part)
+        results_img = results_img.at[jj*stride:(jj+1)*stride,:,:].set(results_img_part)
         
-    return results
+    return results_img, accumulated_t, total_steps, explode, vanish, done
 
 def stability_sweep(dts, krs, starting_grid, pattern, make_kernel, my_update, max_t, \
                     persistence_update=None, \
@@ -112,7 +113,7 @@ def stability_sweep(dts, krs, starting_grid, pattern, make_kernel, my_update, ma
 
 
     clipping_fn = lambda x: np.clip(x, 0.0, 1.0)
-    results = np.zeros((dts.shape[0], krs.shape[0],3))
+    results_img = np.zeros((dts.shape[0], krs.shape[0],3))
     max_growth = 1.5
     min_growth = 0.5
 
@@ -180,13 +181,13 @@ def stability_sweep(dts, krs, starting_grid, pattern, make_kernel, my_update, ma
                 plt.show()
 
             if explode == True:
-                results[ii,jj,0] = 1-accumulated_t / max_t
+                results_img[ii,jj,0] = 1-accumulated_t / max_t
             elif vanish == True:
-                results[ii,jj,2] = 1-accumulated_t / max_t
+                results_img[ii,jj,2] = 1-accumulated_t / max_t
             else:
-                results[ii,jj,1] = accumulated_t / max_t
+                results_img[ii,jj,1] = accumulated_t / max_t
 
-    return results
+    return results_img, accumulated_t, total_steps, explode, vanish, done
 
 def v_stability_sweep_sl():
     
@@ -200,7 +201,7 @@ def v_stability_sweep_sl():
     print(dts.shape, krs.shape)
     
     clipping_fn = lambda x: np.clip(x, 0.0, 1.0)
-    results = np.zeros((dts.shape[0], krs.shape[0], 4))
+    results_img = np.zeros((dts.shape[0], krs.shape[0], 4))
     
     native_dim_h = pattern.shape[-2]
     native_dim_w = pattern.shape[-1]
@@ -250,7 +251,7 @@ def v_stability_sweep_sl():
         accumulated_t = np.zeros((grid.shape[0], grid.shape[1],1,1))
         total_steps = np.zeros((grid.shape[0], grid.shape[1],1,1))
         
-        results_part = np.zeros((grid.shape[0], grid.shape[1], 4))
+        results_img_part = np.zeros((grid.shape[0], grid.shape[1], 4))
     
         if make_inner_kernel is not None:
             update_step = make_smoothlife_update_step(gen, per, \
@@ -282,11 +283,12 @@ def v_stability_sweep_sl():
             total_steps += 1 * (1 - done)
             total_steps_counter += 1
         
-        results_part = results_part.at[done.squeeze() <= 0].set(green_cmap(accumulated_t[done.squeeze() <= 0] / max_t).squeeze())
+        results_img_part = results_img_part.at[done.squeeze() <= 0].set(green_cmap(accumulated_t[done.squeeze() <= 0] / max_t).squeeze())
         
-        results_part = results_part.at[explode.squeeze() > 0].set(red_cmap(accumulated_t[explode.squeeze() > 0] / max_t).squeeze())
-        results_part = results_part.at[vanish.squeeze() > 0].set(blue_cmap(accumulated_t[vanish.squeeze() > 0] / max_t).squeeze())
+        results_img_part = results_img_part.at[explode.squeeze() > 0].set(red_cmap(accumulated_t[explode.squeeze() > 0] / max_t).squeeze())
+        results_img_part = results_img_part.at[vanish.squeeze() > 0].set(blue_cmap(accumulated_t[vanish.squeeze() > 0] / max_t).squeeze())
           
-        results = results.at[:,jj*stride:(jj+1)*stride,:].set(results_part)
+        results_img = results_img.at[:,jj*stride:(jj+1)*stride,:].set(results_img_part)
     
-    return results
+
+    return results_img, accumulated_t, total_steps, explode, vanish, done
