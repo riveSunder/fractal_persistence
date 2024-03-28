@@ -102,9 +102,11 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
       total_steps_part += 1 * (1 - done_part)
       total_steps_counter += 1
      
-    results_img_part = results_img_part.at[done_part.squeeze() <= 0].set(green_cmap(accumulated_t_part[done_part.squeeze() <= 0] / max_t).squeeze())  
-    results_img_part = results_img_part.at[explode_part.squeeze() > 0].set(red_cmap(accumulated_t_part[explode_part.squeeze() > 0] / max_t).squeeze())
-    results_img_part = results_img_part.at[vanish_part.squeeze() > 0].set(blue_cmap(accumulated_t_part[vanish_part.squeeze() > 0] / max_t).squeeze())
+    accumulated_t_truncated = np.clip(accumulated_t_part, 0, max_t)
+
+    results_img_part = results_img_part.at[done_part.squeeze() <= 0].set(green_cmap(accumulated_t_truncated[done_part.squeeze() <= 0] / max_t).squeeze())  
+    results_img_part = results_img_part.at[explode_part.squeeze() > 0].set(red_cmap(accumulated_t_truncated[explode_part.squeeze() > 0] / max_t).squeeze())
+    results_img_part = results_img_part.at[vanish_part.squeeze() > 0].set(blue_cmap(accumulated_t_truncated[vanish_part.squeeze() > 0] / max_t).squeeze())
     
     results_img = results_img.at[jj*stride:(jj+1)*stride,:,:].set(results_img_part)
 
