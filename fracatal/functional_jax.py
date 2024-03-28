@@ -89,20 +89,16 @@ def make_update_function(mean, standard_deviation):
 
     return lenia_update
 
-def make_update_step(update_function, kernel, dt, clipping_function = lambda x: x, decimals=None):
+def make_update_step(update_function, kernel, dt, clipping_function = lambda x: x):
 
-    if decimals is not None:
-        r = lambda x: np.round(x, decimals=decimals)
-    else:
-        r = lambda x: x
 
     def update_step(grid):
 
 
-        neighborhoods = r(ft_convolve(r(grid), r(kernel)))
-        dgrid_dt = r(update_function(neighborhoods))
+        neighborhoods = ft_convolve(grid, kernel)
+        dgrid_dt = update_function(neighborhoods)
 
-        new_grid = r(clipping_function(r(grid) + dt * dgrid_dt))
+        new_grid = clipping_function(grid + dt * dgrid_dt)
 
         return new_grid
 

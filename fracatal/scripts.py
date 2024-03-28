@@ -19,16 +19,18 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
+            default_dtype = np.float16, \
             clipping_fn = lambda x: np.clip(x, 0.0, 1.0)):
+
   if stride > parameter_steps:
     print(f" stride {stride} greater than parameter ticks {parameter_steps}")
     print(f"\t\tUsing {parameter_steps} for stride instead")
     stride = min([stride, parameter_steps])
   
-  dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps)[:,None, None,None]
-  krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps)[:,None,None,None]
+  dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+  krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
   
-  results_img = np.zeros((dts.shape[0], krs.shape[0], 4))
+  results_img = np.zeros((dts.shape[0], krs.shape[0], 4), dtype=default_dtype)
 
   native_dim_h = pattern.shape[-2]
   native_dim_w = pattern.shape[-1]
@@ -37,9 +39,9 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
 
   kr = krs#
 
-  kernel = np.zeros((1, krs.shape[0],kernel.shape[-2], kernel.shape[-1]))
-  patterns = np.zeros((dts.shape[0], krs.shape[0],kernel.shape[-2], kernel.shape[-1]))
-  starting_grid = np.zeros((stride, krs.shape[0], grid_dim, grid_dim))
+  kernel = np.zeros((1, krs.shape[0],kernel.shape[-2], kernel.shape[-1]), dtype=default_dtype)
+  patterns = np.zeros((dts.shape[0], krs.shape[0],kernel.shape[-2], kernel.shape[-1]), dtype=default_dtype)
+  starting_grid = np.zeros((stride, krs.shape[0], grid_dim, grid_dim), dtype=default_dtype)
   
   for kk in range(kr.shape[0]):
     
@@ -58,11 +60,11 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
 
   full_dts = dts * 1.0
 
-  explode = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  vanish = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  done = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1))
+  explode = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  vanish = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  done = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
 
   red_cmap = plt.get_cmap("Reds")
   green_cmap = plt.get_cmap("Greens")
@@ -118,6 +120,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     done = done.at[jj*stride:(jj+1)*stride,:,:].set(done_part)
     
   # accumulated_t can be larger than max_t when a batch contains different dt values
+  results_img = np.array((255 * results_img), dtype=np.uint8)
   return results_img, accumulated_t, total_steps, explode, vanish, done
 
 
