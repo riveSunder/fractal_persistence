@@ -76,7 +76,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
         update_step = make_update_step(my_update, kernel, dts, clipping_fn)
         
         red_cmap = plt.get_cmap("Reds")
-        green_cmap = plt.get_cmap("Purples")
+        green_cmap = plt.get_cmap("Greens")
         blue_cmap = plt.get_cmap("Blues")
         total_steps_counter = 0
         
