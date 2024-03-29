@@ -7,8 +7,6 @@ from fracatal.functional_jax import make_update_step, pad_2d
 import matplotlib
 import matplotlib.pyplot as plt
 
-import time
-
 def v_stability_sweep(pattern, make_kernel, my_update, \
             min_dt=0.001, max_dt=1.05, \
             min_kr=5, max_kr=51,k0=13,\
