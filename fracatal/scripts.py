@@ -52,7 +52,11 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     dim_h = int(native_dim_h * scale_factor)
     dim_w = int(native_dim_w * scale_factor)
     
-    scaled_pattern = np.array(skimage.transform.resize(pattern, (1,1, dim_h, dim_w)), dtype=default_dtype)
+    if scale_factor < 1.0:
+      scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5, anti_aliasing=True), \
+          dtype=default_dtype)
+    else:
+      scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5), dtype=default_dtype)
     
     starting_grid = starting_grid.at[:,kk:kk+1,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
    
@@ -94,6 +98,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     
     total_steps_counter = 0
     
+    grid_0 = 1.0 * grid
     while accumulated_t_part.min() < max_t and total_steps_counter <= max_steps:
        
       grid = update_step(grid)
@@ -125,7 +130,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     
   # accumulated_t can be larger than max_t when a batch contains different dt values
   results_img = np.array((255 * results_img), dtype=np.uint8)
-  return results_img, accumulated_t, total_steps, explode, vanish, done
+  return results_img, accumulated_t, total_steps, explode, vanish, done, grid_0, grid
 
 
 def stability_sweep(pattern, make_kernel, my_update, 
@@ -254,7 +259,6 @@ def v_stability_sweep_sl():
   
   kernel = make_kernel(2)
   
-  t0 = time.time()
   
   #my_update = gen
   #per_update = per
