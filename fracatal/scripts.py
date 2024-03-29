@@ -2,7 +2,7 @@ import numpy.random as npr
 from jax import numpy as np
 import skimage
 
-from fracatal.functional_jax import make_update_step
+from fracatal.functional_jax import make_update_step, pad_2d
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -30,14 +30,15 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
   dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
   krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
   
-  results_img = np.zeros((dts.shape[0], krs.shape[0], 4), dtype=default_dtype)
+  results_img = np.zeros((dts.shape[0], krs.shape[0], 4)) 
+  # dtype shouldn't matter for the preview image
+  #, dtype=default_dtype)
 
   native_dim_h = pattern.shape[-2]
   native_dim_w = pattern.shape[-1]
 
-  kernel = make_kernel(2)
-
   kr = krs#
+  kernel = make_kernel(1)
 
   kernel = np.zeros((1, krs.shape[0],kernel.shape[-2], kernel.shape[-1]), dtype=default_dtype)
   patterns = np.zeros((dts.shape[0], krs.shape[0],kernel.shape[-2], kernel.shape[-1]), dtype=default_dtype)
@@ -45,18 +46,22 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
   
   for kk in range(kr.shape[0]):
     
-    kernel = kernel.at[:,kk:kk+1,:,:].set(make_kernel(kr[kk].item()))
+    kernel = kernel.at[:,kk:kk+1,:,:].set(np.array(make_kernel(kr[kk].item()), dtype=default_dtype))
     scale_factor = kr[kk].item() / k0
     
     dim_h = int(native_dim_h * scale_factor)
     dim_w = int(native_dim_w * scale_factor)
     
-    scaled_pattern = skimage.transform.resize(pattern, (1,1, dim_h, dim_w))
+    scaled_pattern = np.array(skimage.transform.resize(pattern, (1,1, dim_h, dim_w)), dtype=default_dtype)
     
     starting_grid = starting_grid.at[:,kk:kk+1,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
    
   
   grid = starting_grid * 1.0
+
+  if grid.shape[1:] != kernel.shape[1:]:
+    print("pre-padding kernel")
+    kernel = pad_2d(kernel, grid.shape)
 
   full_dts = dts * 1.0
 
@@ -78,14 +83,14 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     
     starting_sum = grid.sum(axis=(2,3), keepdims=True)
     
-    accumulated_t_part = np.zeros((grid.shape[0], grid.shape[1],1,1))
-    total_steps_part = np.zeros((grid.shape[0], grid.shape[1],1,1))
-    explode_part = np.zeros((grid.shape[0], grid.shape[1],1,1))
-    vanish_part = np.zeros((grid.shape[0], grid.shape[1],1,1))
+    accumulated_t_part = np.zeros((grid.shape[0], grid.shape[1],1,1), dtype=default_dtype)
+    total_steps_part = np.zeros((grid.shape[0], grid.shape[1],1,1), dtype=default_dtype)
+    explode_part = np.zeros((grid.shape[0], grid.shape[1],1,1), dtype=default_dtype)
+    vanish_part = np.zeros((grid.shape[0], grid.shape[1],1,1), dtype=default_dtype)
     
     results_img_part = np.zeros((grid.shape[0], grid.shape[1], 4))
     
-    update_step = make_update_step(my_update, kernel, dts, clipping_fn)
+    update_step = make_update_step(my_update, kernel, dts, clipping_fn, default_dtype=default_dtype)
     
     total_steps_counter = 0
     
@@ -111,7 +116,6 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     results_img_part = results_img_part.at[explode_part.squeeze() > 0].set(red_cmap(accumulated_t_truncated[explode_part.squeeze() > 0] / max_t).squeeze())
     
     results_img = results_img.at[jj*stride:(jj+1)*stride,:,:].set(results_img_part)
-
     accumulated_t = accumulated_t.at[jj*stride:(jj+1)*stride,:,:].set(accumulated_t_part)
     total_steps = total_steps.at[jj*stride:(jj+1)*stride,:,:].set(total_steps_part)
 

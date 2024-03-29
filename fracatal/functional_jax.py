@@ -1,13 +1,15 @@
 from jax import numpy as np
 import numpy.random as npr
 
+def pad_2d(kernel, pad_to):
+  """
+  pads the last two dimensions of grid to match dims of pad_to
+  """
 
-def ft_convolve(grid, kernel):                          
-                       
-  if np.shape(kernel) != np.shape(grid):                   
+  if np.shape(kernel)[1:] != pad_to[1:]:
 
-    diff_h  = np.shape(grid)[-2] - np.shape(kernel)[-2] 
-    diff_w =  np.shape(grid)[-1] - np.shape(kernel)[-1] 
+    diff_h  = pad_to[-2] - np.shape(kernel)[-2]
+    diff_w =  pad_to[-1] - np.shape(kernel)[-1]
     pad_h = diff_h // 2
     pad_w = diff_w // 2
 
@@ -29,6 +31,16 @@ def ft_convolve(grid, kernel):
 
     padded_kernel = np.pad(kernel, \
         ((0,0), (0,0), (pad_h+hp, pad_h+hm), (pad_w+wp, pad_w+wm)))
+  else:
+    return kernel
+
+  return padded_kernel
+
+def ft_convolve(grid, kernel, default_dtype=np.float32):
+
+  if np.shape(kernel)[1:] != np.shape(grid)[1:]:
+
+    padded_kernel = pad_2d(kernel, np.shape(grid))
 
   else:                                     
     padded_kernel = kernel                          
@@ -38,6 +50,8 @@ def ft_convolve(grid, kernel):
   fourier_product = fourier_grid * fourier_kernel 
   real_spatial_convolved = np.real(np.fft.ifft2(fourier_product, axes=(-2,-1)))
   convolved = np.fft.ifftshift(real_spatial_convolved, axes=(-2, -1))
+
+  convolved = np.array(convolved, dtype=default_dtype)
                                         
   return convolved 
 
@@ -65,16 +79,16 @@ def make_mixed_gaussian(amplitudes, means, std_devs):
 
   return gaussian_mixture
 
-def make_kernel_field(kernel_radius, dim=126):
+def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
 
   #dim = kernel_radius * 2 + 1
-
 
   x =  np.arange(-dim / 2, dim / 2 + 1, 1)
   xx, yy = np.meshgrid(x,x)
 
   rr = np.sqrt(xx**2 + yy**2) / kernel_radius
 
+  rr = np.array(rr, dtype=default_dtype)
   return rr
 
 def make_update_function(mean, standard_deviation):
@@ -93,7 +107,7 @@ def make_update_step(update_function, kernel, dt, clipping_function = lambda x: 
 
   def update_step(grid):
 
-    neighborhoods = ft_convolve(grid, kernel)
+    neighborhoods = ft_convolve(grid, kernel, default_dtype=default_dtype)
     dgrid_dt = update_function(neighborhoods)
 
     new_grid = clipping_function(grid + dt * dgrid_dt)
@@ -102,12 +116,14 @@ def make_update_step(update_function, kernel, dt, clipping_function = lambda x: 
 
   return update_step
 
-def make_make_kernel_function(amplitudes, means, standard_deviations, dim=126):
+def make_make_kernel_function(amplitudes, means, standard_deviations, \
+    dim=126, default_dtype=np.float32):
 
   def make_kernel(kernel_radius):
 
     gm = make_mixed_gaussian(amplitudes, means, standard_deviations)
-    rr = make_kernel_field(kernel_radius, dim=dim)
+    rr = make_kernel_field(kernel_radius, dim=dim, default_dtype=default_dtype)
+
     kernel = gm(rr)[None,None,:,:]
     kernel = kernel / kernel.sum()
 
