@@ -55,6 +55,26 @@ def ft_convolve(grid, kernel, default_dtype=np.float32):
                                         
   return convolved 
 
+def compute_diversity(subimage):
+    """
+    Computes Shannon diversity for pixel values in subimage
+    """
+    
+    subimage = np.uint8(255*subimage / subimage.max())
+    eps = 1e-9
+    # compute Shannon diversity (aka entropy)
+    p = np.zeros(256)
+    
+    for ii in range(p.shape[0]):
+        p = p.at[ii].set(np.sum(subimage == ii))
+        
+    # normalize p
+    p = p / p.sum()
+    
+    h = - np.sum( p * np.log2( eps+p))
+    
+    return h
+
 def make_gaussian(a, m, s):
 
   eps = 1e-9
@@ -100,6 +120,18 @@ def make_update_function(mean, standard_deviation):
     lenia update
     """
     return 2 * my_gaussian(x) - 1
+
+  return lenia_update
+
+def make_transition_function(mean, standard_deviation):
+
+  my_gaussian = make_gaussian(1.0, mean, standard_deviation)
+
+  def lenia_update(x):
+    """
+    lenia update
+    """
+    return my_gaussian(x) 
 
   return lenia_update
 
