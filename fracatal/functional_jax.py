@@ -55,14 +55,14 @@ def ft_convolve(grid, kernel, default_dtype=np.float32):
                                         
   return convolved 
 
-def compute_diversity(subimage):
+def compute_entropy(subimage):
   """
-  Computes Shannon diversity for pixel values in subimage
+  Computes Shannon entropy for pixel values in subimage
   """
   
   subimage = np.uint8(255*subimage / subimage.max())
   eps = 1e-9
-  # compute Shannon diversity (aka entropy)
+  # compute Shannon entropy 
   p = np.zeros(256)
   
   for ii in range(p.shape[0]):
@@ -84,14 +84,13 @@ def compute_frequency_ratio(subimage, ft_dim=65):
 
   return frequency_ratio
 
-def compute_frequency_diversity(subimage, ft_dim=65):
+def compute_frequency_entropy(subimage, ft_dim=65):
 
   ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
 
-  frequency_diversity = compute_diversity(ft_subimage)
+  frequency_entropy = compute_entropy(ft_subimage)
 
-  return frequency_diversity
-
+  return frequency_entropy
 
 def make_gaussian(a, m, s):
 
