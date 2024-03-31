@@ -56,24 +56,42 @@ def ft_convolve(grid, kernel, default_dtype=np.float32):
   return convolved 
 
 def compute_diversity(subimage):
-    """
-    Computes Shannon diversity for pixel values in subimage
-    """
-    
-    subimage = np.uint8(255*subimage / subimage.max())
-    eps = 1e-9
-    # compute Shannon diversity (aka entropy)
-    p = np.zeros(256)
-    
-    for ii in range(p.shape[0]):
-        p = p.at[ii].set(np.sum(subimage == ii))
-        
-    # normalize p
-    p = p / p.sum()
-    
-    h = - np.sum( p * np.log2( eps+p))
-    
-    return h
+  """
+  Computes Shannon diversity for pixel values in subimage
+  """
+  
+  subimage = np.uint8(255*subimage / subimage.max())
+  eps = 1e-9
+  # compute Shannon diversity (aka entropy)
+  p = np.zeros(256)
+  
+  for ii in range(p.shape[0]):
+    p = p.at[ii].set(np.sum(subimage == ii))
+      
+  # normalize p
+  p = p / p.sum()
+  
+  h = - np.sum( p * np.log2( eps+p))
+  
+  return h
+
+def compute_frequency_ratio(subimage, ft_dim=65):
+  rr = make_kernel_field(ft_dim, ft_dim-1)\
+
+  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
+
+  frequency_ratio = (rr * ft_subimage).sum() / ((1.0 - rr) * ft_subimage).sum()
+
+  return frequency_ratio
+
+def compute_frequency_diversity(subimage, ft_dim=65):
+
+  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
+
+  frequency_diversity = compute_diversity(ft_subimage)
+
+  return frequency_diversity
+
 
 def make_gaussian(a, m, s):
 
