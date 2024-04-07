@@ -76,11 +76,12 @@ def compute_entropy(subimage):
   return h
 
 def compute_frequency_ratio(subimage, ft_dim=65):
+  eps= 1e-9
   rr = make_kernel_field(ft_dim, ft_dim-1)\
 
   ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
 
-  frequency_ratio = (rr * ft_subimage).sum() / ((1.0 - rr) * ft_subimage).sum()
+  frequency_ratio = (rr * ft_subimage).sum() / (eps + (1.0 - rr) * ft_subimage).sum()
 
   return frequency_ratio
 
