@@ -160,7 +160,8 @@ def stability_sweep(pattern, make_kernel, my_update,
   done = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
   accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
   total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
-  starting_grid = np.zeros((dts.shape[0], krs.shape[0], grid_dim, grid_dim), dtype=default_dtype)
+  #starting_grid = np.zeros((dts.shape[0], krs.shape[0], grid_dim, grid_dim), dtype=default_dtype)
+  starting_grid = np.zeros((1, 1, grid_dim, grid_dim), dtype=default_dtype)
 
   red_cmap = plt.get_cmap("Reds")
   green_cmap = plt.get_cmap("Greens")
@@ -177,7 +178,7 @@ def stability_sweep(pattern, make_kernel, my_update,
             kernel, inner_kernel, dt, \
             clipping_fn)
       else:
-        update_step = make_update_step(my_update, kernel, dt, clipping_fn)
+        update_step = make_update_step(my_update, kernel, dt, clipping_fn, default_dtype=default_dtype)
 
       scale_factor = kr.item() / k0
 
@@ -236,9 +237,6 @@ def stability_sweep(pattern, make_kernel, my_update,
       explode = explode.at[ii,jj].set(exploded)
       vanish = vanish.at[ii,jj].set(vanished)
       done = done.at[ii,jj].set(exploded or vanished)
-
-      print(ii, jj, dts.shape, krs.shape)
-  import pdb; pdb.set_trace()
 
   results_img = np.array((255 * results_img), dtype=np.uint8)
 
