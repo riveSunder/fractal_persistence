@@ -237,7 +237,7 @@ def stability_sweep(pattern, make_kernel, my_update,
       vanish = vanish.at[ii,jj].set(vanished)
       done = done.at[ii,jj].set(exploded or vanished)
 
-  print(ii, jj, dts.shape, krs.shape)
+      print(ii, jj, dts.shape, krs.shape)
   import pdb; pdb.set_trace()
 
   results_img = np.array((255 * results_img), dtype=np.uint8)
