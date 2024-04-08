@@ -179,7 +179,6 @@ def stability_sweep(pattern, make_kernel, my_update,
       else:
         update_step = make_update_step(my_update, kernel, dt, clipping_fn)
 
-      accumulated_t_part = 0.0
       scale_factor = kr.item() / k0
 
       if scale_factor < 1.0:
@@ -203,6 +202,7 @@ def stability_sweep(pattern, make_kernel, my_update,
       exploded = False
       vanished = False
       total_steps_counter = 0
+      accumulated_t_part = 0.0
 
       grid_0 = 1.0 * grid
       while accumulated_t_part < max_t and total_steps_counter <= max_steps:
@@ -236,6 +236,9 @@ def stability_sweep(pattern, make_kernel, my_update,
       explode = explode.at[ii,jj].set(exploded)
       vanish = vanish.at[ii,jj].set(vanished)
       done = done.at[ii,jj].set(exploded or vanished)
+
+  print(ii, jj, dts.shape, krs.shape)
+  import pdb; pdb.set_trace()
 
   results_img = np.array((255 * results_img), dtype=np.uint8)
 
