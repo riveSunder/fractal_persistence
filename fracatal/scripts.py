@@ -57,7 +57,6 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
           dtype=default_dtype)
     else:
       scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5), dtype=default_dtype)
-    
     starting_grid = starting_grid.at[:,kk:kk+1,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
    
   
@@ -199,6 +198,7 @@ def stability_sweep(pattern, make_kernel, my_update,
       vanished = False
       total_steps_counter = 0
 
+      grid_0 = 1.0 * grid
       while accumulated_t_part < max_t and total_steps_counter <= max_steps:
 
         grid = update_step(grid)
@@ -231,7 +231,9 @@ def stability_sweep(pattern, make_kernel, my_update,
       vanish = vanish.at[ii,jj].set(vanished)
       done = done.at[ii,jj].set(exploded or vanished)
 
-  return results_img, accumulated_t, total_steps, explode, vanish, done
+  results_img = np.array((255 * results_img), dtype=np.uint8)
+
+  return results_img, accumulated_t, total_steps, explode, vanish, done, grid_0, grid
 
 def v_stability_sweep_sl():
   
