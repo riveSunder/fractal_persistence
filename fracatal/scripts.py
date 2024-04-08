@@ -141,8 +141,8 @@ def stability_sweep(pattern, make_kernel, my_update,
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
-            default_dtype = np.float16, \
-            clipping_fn = lambda x: np.clip(x, 0.0, 1.0)):
+            default_dtype=np.float16, \
+            clipping_fn=lambda x: np.clip(x, 0.0, 1.0)):
 
   if stride is not None:
     print(f" input argument stride (value: {stride}) not used in this algo")
@@ -180,7 +180,7 @@ def stability_sweep(pattern, make_kernel, my_update,
         update_step = make_update_step(my_update, kernel, dt, clipping_fn)
 
       accumulated_t_part = 0.0
-      scale_factor = kr / k0
+      scale_factor = kr.item() / k0
 
       if scale_factor < 1.0:
         scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5, anti_aliasing=True), \
