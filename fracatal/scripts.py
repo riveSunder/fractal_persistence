@@ -194,7 +194,8 @@ def stability_sweep(pattern, make_kernel, my_update,
       grid = grid.at[:,:,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
 
       if grid.shape[1:] != kernel.shape[1:]:
-        print("pre-padding kernel")
+        if jj == 0: 
+            print(f"pre-padding kernel")
         kernel = pad_2d(kernel, grid.shape)
 
       starting_sum = grid.sum()
