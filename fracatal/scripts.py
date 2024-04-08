@@ -49,15 +49,11 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
     kernel = kernel.at[:,kk:kk+1,:,:].set(np.array(make_kernel(kr[kk].item()), dtype=default_dtype))
     scale_factor = kr[kk].item() / k0
     
-    dim_h = int(native_dim_h * scale_factor)
-    dim_w = int(native_dim_w * scale_factor)
-    
     if scale_factor < 1.0:
       scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5, anti_aliasing=True), \
           dtype=default_dtype)
     else:
       scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5), dtype=default_dtype)
-    
     starting_grid = starting_grid.at[:,kk:kk+1,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
    
   
@@ -145,25 +141,27 @@ def stability_sweep(pattern, make_kernel, my_update,
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
-            clipping_fn = lambda x: np.clip(x, 0.0, 1.0)):
+            default_dtype=np.float16, \
+            clipping_fn=lambda x: np.clip(x, 0.0, 1.0)):
 
   if stride is not None:
     print(f" input argument stride (value: {stride}) not used in this algo")
   
-  dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps)[:,None, None,None]
-  krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps)[:,None,None,None]
+  dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+  krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
 
   results_img = np.zeros((dts.shape[0], krs.shape[0], 4))
 
   native_dim_h = pattern.shape[-2]
   native_dim_w = pattern.shape[-1]
 
-  explode = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  vanish = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  done = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1))
-  starting_grid = np.zeros((dts.shape[0], krs.shape[0], grid_dim, grid_dim))
+  explode = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  vanish = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  done = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+  #starting_grid = np.zeros((dts.shape[0], krs.shape[0], grid_dim, grid_dim), dtype=default_dtype)
+  starting_grid = np.zeros((1, 1, grid_dim, grid_dim), dtype=default_dtype)
 
   red_cmap = plt.get_cmap("Reds")
   green_cmap = plt.get_cmap("Greens")
@@ -180,25 +178,34 @@ def stability_sweep(pattern, make_kernel, my_update,
             kernel, inner_kernel, dt, \
             clipping_fn)
       else:
-        update_step = make_update_step(my_update, kernel, dt, clipping_fn)
+        update_step = make_update_step(my_update, kernel, dt, clipping_fn, default_dtype=default_dtype)
 
-      accumulated_t_part = 0.0
-      scale_factor = kr / k0
+      scale_factor = kr.item() / k0
 
-      dim_h = int(native_dim_h * scale_factor)
-      dim_w = int(native_dim_w * scale_factor)
+      if scale_factor < 1.0:
+        scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5, anti_aliasing=True), \
+          dtype=default_dtype)
+      else:
+        scaled_pattern = np.array(skimage.transform.rescale(pattern, (1,1, scale_factor, scale_factor), order=5), dtype=default_dtype)
 
-      scaled_pattern = skimage.transform.resize(pattern, (1,1, dim_h, dim_w))
+      starting_grid = starting_grid.at[:,:,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
 
       grid = starting_grid * 0.0
       grid = grid.at[:,:,:scaled_pattern.shape[-2], :scaled_pattern.shape[-1]].set(scaled_pattern)
+
+      if grid.shape[1:] != kernel.shape[1:]:
+        if jj == 0 and ii == 0: 
+            print(f"pre-padding kernel")
+        kernel = pad_2d(kernel, grid.shape)
 
       starting_sum = grid.sum()
 
       exploded = False
       vanished = False
       total_steps_counter = 0
+      accumulated_t_part = 0.0
 
+      grid_0 = 1.0 * grid
       while accumulated_t_part < max_t and total_steps_counter <= max_steps:
 
         grid = update_step(grid)
@@ -231,7 +238,9 @@ def stability_sweep(pattern, make_kernel, my_update,
       vanish = vanish.at[ii,jj].set(vanished)
       done = done.at[ii,jj].set(exploded or vanished)
 
-  return results_img, accumulated_t, total_steps, explode, vanish, done
+  results_img = np.array((255 * results_img), dtype=np.uint8)
+
+  return results_img, accumulated_t, total_steps, explode, vanish, done, grid_0, grid
 
 def v_stability_sweep_sl():
   
@@ -251,17 +260,9 @@ def v_stability_sweep_sl():
   native_dim_w = pattern.shape[-1]
   
   kernel_dim = 122
-  make_kernel = make_make_kernel_function(amplitudes, means, standard_deviations, dim=kernel_dim)
-  
-  #make_kernel = make_make_smoothlife_kernel_function(r_inner, r_outer,dim = 126)
-  #make_inner_kernel = make_make_smoothlife_kernel_function(0.0, r_inner, dim = 126)
-  
+  make_kernel = make_make_kernel_function(amplitudes, means, standard_deviations, dim=kernel_dim, dtype=default_dtype)
   
   kernel = make_kernel(2)
-  
-  
-  #my_update = gen
-  #per_update = per
   
   for jj in range(krs[::stride].shape[0]):
     kr = krs[jj*stride:(jj+1)*stride]
