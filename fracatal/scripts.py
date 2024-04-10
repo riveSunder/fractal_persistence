@@ -130,6 +130,7 @@ def v_stability_sweep(pattern, make_kernel, my_update, \
 
 
 def stability_sweep(pattern, make_kernel, my_update, 
+            dynamic_mode=0,
             min_dt=0.001, max_dt=1.05, \
             min_kr=5, max_kr=51, k0=13, \
             parameter_steps=16, \
@@ -176,9 +177,14 @@ def stability_sweep(pattern, make_kernel, my_update,
         inner_kernel = make_inner_kernel(k0)
         update_step = make_smoothlife_update_step(my_update, persistence_update, \
             kernel, inner_kernel, dt, \
-            clipping_fn)
+            clipping_fn, \
+            mode=dynamic_mode, \
+            )
+
       else:
-        update_step = make_update_step(my_update, kernel, dt, clipping_fn, default_dtype=default_dtype)
+        update_step = make_update_step(my_update, kernel, dt, clipping_function=clipping_fn, \
+            mode=dynamic_mode, \
+            default_dtype=default_dtype)
 
       scale_factor = kr.item() / k0
 
