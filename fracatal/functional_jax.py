@@ -129,36 +129,54 @@ def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
   rr = np.array(rr, dtype=default_dtype)
   return rr
 
-def make_update_function(mean, standard_deviation):
+def make_update_function(mean, standard_deviation, mode=0):
+  # mode 0: use 2*f(x) -1
+  # mode 1: use f(x)
 
   my_gaussian = make_gaussian(1.0, mean, standard_deviation)
 
   def lenia_update(x):
     """
-    lenia update
+    lenia growth function - mode 0
     """
-    return 2 * my_gaussian(x) - 1
+    if mode == 0:
+      return 2 * my_gaussian(x) - 1
+    elif mode == 2:
+      return my_gaussian(x) - 1
+    else:
+      return my_gaussian(x)
+
 
   return lenia_update
 
-def make_transition_function(mean, standard_deviation):
 
-  my_gaussian = make_gaussian(1.0, mean, standard_deviation)
-
-  def lenia_update(x):
-    """
-    lenia update
-    """
-    return my_gaussian(x) 
-
-  return lenia_update
-
-def make_update_step(update_function, kernel, dt, clipping_function = lambda x: x, default_dtype=np.float32):
+def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, clipping_function = lambda x: x, default_dtype=np.float32):
 
   def update_step(grid):
 
+
     neighborhoods = ft_convolve(grid, kernel, default_dtype=default_dtype)
-    dgrid_dt = update_function(neighborhoods)
+
+    growth = update_function(neighborhoods)
+
+    if persistence_function is None:
+      dgrid_dt = growth
+    elif inner_kernel is None:
+      m = np.clip(grid, 0, 1)
+      genesis = update_function(neighborhoods)
+      persistence = persistence_function(neighborhoods)
+      dgrid_dt = (1-m) * genesis + m * persistence
+    else:
+      m = ft_convolve(grid, inner_kernel, default_dtype=default_dtype)
+      m = np.clip(m, 0, 1)
+      genesis = update_function(neighborhoods)
+      persistence = persistence_function(neighborhoods)
+
+      dgrid_dt = (1-m) * genesis + m * persistence
+
+    if mode == 1:
+      # asymptotic update kawaguchi, suzuki, arita, chan 2020
+      dgrid_dt = (dgrid_dt - grid)
 
     new_grid = clipping_function(grid + dt * dgrid_dt)
 
