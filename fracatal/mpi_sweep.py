@@ -87,7 +87,7 @@ def mpi_stability_sweep(pattern, make_kernel, my_update,
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
-            default_dtype=np.float16, \
+            default_dtype=np.float32, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0), \
             workers=8):
 
@@ -142,7 +142,7 @@ def mantle(pattern, make_kernel, my_update,
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
-            default_dtype=np.float16, \
+            default_dtype=np.float32, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0),\
             workers=1):
 
@@ -288,6 +288,7 @@ def mantle(pattern, make_kernel, my_update,
     msg += f"    kr from {min_kr:2e} to {max_kr:.2e}\n"
     
     ax.set_title("disco persistence \n" +msg, fontsize=24)
+    plt.tight_layout()
     plt.savefig(f"{root_dir}/assets/disco{time_stamp}_{idx}.png")
     #plt.show() 
        
@@ -424,7 +425,7 @@ def arm(pattern, make_kernel, my_update,
             max_steps=32000, \
             max_growth=2, \
             min_growth=0.5,\
-            default_dtype=np.float16, \
+            default_dtype=np.float32, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0)):
 
 
