@@ -2,7 +2,23 @@ import numpy.random as npr
 from jax import numpy as np
 import skimage
 
-from fracatal.functional_jax import make_update_step, pad_2d
+from fracatal.functional_jax.convolve import ft_convolve
+from fracatal.functional_jax.pad import pad_2d
+from fracatal.functional_jax.metrics import compute_entropy, \
+        compute_frequency_ratio, \
+        compute_frequency_entropy
+from fracatal.functional_jax.compose import make_gaussian, \
+        make_mixed_gaussian, \
+        make_kernel_field, \
+        make_update_function, \
+        make_update_step, \
+        make_make_kernel_function, \
+        sigmoid_1, \
+        get_smooth_steps_fn, \
+        make_make_smoothlife_kernel_function, \
+        make_smooth_interval, \
+        make_smoothlife_update_function, \
+        make_smoothlife_update_step
 
 import matplotlib
 import matplotlib.pyplot as plt
