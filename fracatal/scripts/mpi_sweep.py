@@ -44,38 +44,40 @@ from mpi4py import MPI
 comm = MPI.COMM_WORLD
 
 def mpi_fork(workers):
-    """
-    relaunches the current script with workers
-    Returns "parent" for original parent, "child" for MPI children
-    (from https://github.com/garymcintire/mpi_util/)
-    via https://github.com/google/brain-tokyo-workshop/tree/master/WANNRelease
-    """
-    global worker_number, rank
+  """
+  relaunches the current script with workers
+  Returns "parent" for original parent, "child" for MPI children
+  (from https://github.com/garymcintire/mpi_util/)
+  via https://github.com/google/brain-tokyo-workshop/tree/master/WANNRelease
+  """
+  global worker_number, rank
 
-    if workers <= 1:
-        print("no workers, n<=1")
-        worker_number = 0
-        rank = 0
-        return "child"
+  if workers <= 1:
+      print("no workers, n<=1")
+      worker_number = 0
+      rank = 0
+      return "child"
 
-    if os.getenv("IN_MPI") is None:
-        env = os.environ.copy()
-        env.update(\
-                MKL_NUM_THREADS="1", \
-                OMP_NUM_THREAdS="1",\
-                IN_MPI="1",\
-                )
-        print( ["mpirun", "-np", str(workers), sys.executable]  + sys.argv)
-        subprocess.check_call(["mpirun", "-np", str(workers), sys.executable] + ['-u']+ sys.argv, env=env)
+  if os.getenv("IN_MPI") is None:
+      env = os.environ.copy()
+      env.update(\
+              MKL_NUM_THREADS="1", \
+              OMP_NUM_THREAdS="1",\
+              IN_MPI="1",\
+              )
+      print( ["mpirun", "-np", str(workers), sys.executable]  + sys.argv)
+      subprocess.check_call(["mpirun", "-np", str(workers), sys.executable] + ['-u']+ sys.argv, env=env)
 
-        return "parent"
-    else:
-        worker_number = comm.Get_size()
-        rank = comm.Get_rank()
-        return "child"
+      return "parent"
+  else:
+      worker_number = comm.Get_size()
+      rank = comm.Get_rank()
+      return "child"
 
-def mpi_stability_sweep(pattern, make_kernel, my_update, 
-            dynamic_mode=0,
+def mpi_stability_sweep(pattern, make_kernel, \
+            dynamic_mode=0,\
+            min_mu=0.15, max_mu=None, \
+            min_sigma=0.017, max_sigma=None, \
             min_dt=0.001, max_dt=1.05, \
             min_kr=5, max_kr=51, k0=13, \
             parameter_steps=16, \
@@ -95,8 +97,10 @@ def mpi_stability_sweep(pattern, make_kernel, my_update,
       os._exit(0)
 
   if rank == 0:
-      results = mantle(pattern, make_kernel, my_update, 
+      results = mantle(pattern, make_kernel,  \
             dynamic_mode,
+            min_mu, max_mu, \
+            min_sigma, max_sigma, \
             min_dt, max_dt, \
             min_kr, max_kr, k0, \
             parameter_steps, \
@@ -112,8 +116,10 @@ def mpi_stability_sweep(pattern, make_kernel, my_update,
             clipping_fn, workers)
       return results
   else:
-      arm(pattern, make_kernel, my_update, 
+      arm(pattern, make_kernel,  \
             dynamic_mode,
+            min_mu, max_mu, \
+            min_sigma, max_sigma, \
             min_dt, max_dt, \
             min_kr, max_kr, k0, \
             parameter_steps, \
@@ -129,8 +135,10 @@ def mpi_stability_sweep(pattern, make_kernel, my_update,
             clipping_fn)
 
 
-def mantle(pattern, make_kernel, my_update, 
-            dynamic_mode=0,
+def mantle(pattern, make_kernel, \
+            dynamic_mode=0,\
+            min_mu=0.15, max_mu=None, \
+            min_sigma=0.017, max_sigma=None, \
             min_dt=0.001, max_dt=1.05, \
             min_kr=5, max_kr=51, k0=13, \
             parameter_steps=16, \
@@ -411,8 +419,10 @@ def mantle(pattern, make_kernel, my_update,
       print(f"send shutown signal to worker {worker_idx}")
       comm.send((0,0,-1), dest=worker_idx)
 
-def arm(pattern, make_kernel, my_update, 
-            dynamic_mode=0,
+def arm(pattern, make_kernel, \
+            dynamic_mode=0,\
+            min_mu=0.15, max_mu=None, \
+            min_sigma=0.017, max_sigma=None, \
             min_dt=0.001, max_dt=1.05, \
             min_kr=5, max_kr=51, k0=13, \
             parameter_steps=16, \
@@ -449,8 +459,12 @@ def arm(pattern, make_kernel, my_update,
       
     kernel = make_kernel(kr.item())
 
+    g_mode = 1 if dynamic_mode else 0
+    my_update = make_update_function(min_mu, min_sigma, mode=g_mode)
+
     if make_inner_kernel is not None:
       inner_kernel = make_inner_kernel(k0)
+
       update_step = make_smoothlife_update_step(my_update, persistence_update, \
           kernel, inner_kernel, dt, \
           clipping_fn, \
@@ -530,6 +544,12 @@ if __name__ == "__main__":
   parser.add_argument("-r", "--max_runtime", type=float, default=1800)
   parser.add_argument("-t", "--max_t", type=float, default=16)
   parser.add_argument("-w", "--workers", type=int, default=16)
+
+  parser.add_argument("-nmu", "--min_mu", type=float, default=0.15)
+  parser.add_argument("-xmu", "--max_mu", type=float, default=None)
+  parser.add_argument("-ns", "--min_sigma", type=float, default=.017)
+  parser.add_argument("-xs", "--max_sigmda", type=float, default=None)
+
   parser.add_argument("-ndt", "--min_dt", type=float, default = 0.01)
   parser.add_argument("-xdt", "--max_dt", type=float, default = 1.01)
   parser.add_argument("-nkr", "--min_kr", type=float, default = 4)
@@ -579,32 +599,6 @@ if __name__ == "__main__":
       standard_deviations = [0.0330, 0.0330, 0.0330]
       k0 = 31
 
-  #### Growth functions
-
-  if "orbium" in pattern_name:
-    # O. unicaudatus
-    mean_g = 0.15
-    standard_deviation_g = 0.017
-
-    my_update = make_update_function(mean_g, standard_deviation_g, mode=0)
-  elif "hydrogeminium_natans" in pattern_name:
-    # H. natans
-    mean_g = 0.26
-    standard_deviation_g = 0.036
-    my_update = make_update_function(mean_g, standard_deviation_g, mode=0)
-  elif "scutium_gravidus" in pattern_name:
-    mean_g = 0.283
-    standard_deviation_g = 0.0369
-
-    my_update = make_update_function(mean_g, standard_deviation_g, mode=0)
-  elif "asymdrop" in pattern_name:
-    # the growth function
-    mean_g = 0.12
-    standard_deviation_g = 0.005
-
-    clipping_fn = lambda x: x
-    my_update = make_update_function(mean_g, standard_deviation_g, mode=1)
-
 
   root_dir = "."
   pattern_filepath = os.path.join(root_dir, "patterns", f"{pattern_name}.npy")
@@ -616,7 +610,7 @@ if __name__ == "__main__":
 
   dynamic_mode = 1 if "asym" in pattern_name else 0
   
-  mpi_stability_sweep(pattern, make_kernel, my_update, dynamic_mode=dynamic_mode, \
+  mpi_stability_sweep(pattern, make_kernel, dynamic_mode=dynamic_mode, \
         max_t=max_t, max_steps=max_steps, parameter_steps=parameter_steps, stride=stride,\
         grid_dim=grid_dim,\
         min_dt=min_dt, max_dt=max_dt,\
