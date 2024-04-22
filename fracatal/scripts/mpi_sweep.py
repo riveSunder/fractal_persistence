@@ -91,6 +91,7 @@ def mpi_stability_sweep(pattern, make_kernel, \
             min_growth=0.5,\
             default_dtype=np.float16, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0), \
+            verbosity=0,\
             workers=8):
 
   if mpi_fork(workers) == "parent":
@@ -113,6 +114,7 @@ def mpi_stability_sweep(pattern, make_kernel, \
             max_growth, \
             min_growth,\
             default_dtype, \
+            verbosity,\
             clipping_fn, workers)
       return results
   else:
@@ -132,6 +134,7 @@ def mpi_stability_sweep(pattern, make_kernel, \
             max_growth, \
             min_growth,\
             default_dtype, \
+            verbosity,\
             clipping_fn)
 
 
@@ -151,8 +154,8 @@ def mantle(pattern, make_kernel, \
             max_growth=2, \
             min_growth=0.5,\
             default_dtype=np.float16, \
+            verbosity=0, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0),\
-            verbose=False, \
             workers=1):
 
   if stride is not None:
@@ -252,13 +255,14 @@ def mantle(pattern, make_kernel, \
             #print(f"run index {run_index} sent to worker {worker_idx}")
             run_index += 1
           else:
-            last_worker = worker_idx-1
+            last_worker = worker_idx
+            break
 
           
 
         for worker_idx in range(1, last_worker):
 
-          if verbose: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
+          if verbosity: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
 
           results_part = comm.recv(source=worker_idx)
           
@@ -562,7 +566,7 @@ def arm(pattern, make_kernel, \
             max_growth=2, \
             min_growth=0.5,\
             default_dtype=np.float16, \
-            verbose=False, \
+            verbosity=0, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0)):
 
 
@@ -693,7 +697,7 @@ def arm(pattern, make_kernel, \
     results_part.append(dt)
     results_part.append(kr)
 
-    if verbose: print(f"worker {rank} sending results for {run_index} at {mu}, {sigma}, {dt}, {kr}")
+    if verbosity: print(f"worker {rank} sending results for {run_index} at {mu}, {sigma}, {dt}, {kr}")
     comm.send(results_part, dest=0)
 
 if __name__ == "__main__":
@@ -720,6 +724,7 @@ if __name__ == "__main__":
   parser.add_argument("-k0", "--k0", type=float, default=13)
 
   parser.add_argument("-g", "--grid_dim", type=int, default = 256)
+  parser.add_argument("-v", "--verbosity", type=int, default=0)
 
   args = parser.parse_args()
 
@@ -749,6 +754,7 @@ if __name__ == "__main__":
   kernel_dim = grid_dim - 6
   # k0 spec not actually used (overridden by the logic below)
   k0 = args.k0 
+  verbosity = args.verbosity
 
   #### kernels
   if "orbium" or "asymdrop" or "scutium_gravidus" in pattern_name:
@@ -779,14 +785,15 @@ if __name__ == "__main__":
 
   dynamic_mode = 1 if "asym" in pattern_name else 0
   
-  mpi_stability_sweep(pattern, make_kernel, dynamic_mode=dynamic_mode, \
-        max_t=max_t, max_steps=max_steps, parameter_steps=parameter_steps, stride=stride,\
-        grid_dim=grid_dim,\
-        min_mu=min_mu, max_mu=max_mu,\
-        min_sigma=min_sigma, max_sigma=max_sigma,\
-        min_dt=min_dt, max_dt=max_dt,\
-        min_kr = min_kr, max_kr=max_kr, k0=k0, \
-        default_dtype=default_dtype, \
-        workers=workers)
+  mpi_stability_sweep(pattern, make_kernel, dynamic_mode = dynamic_mode, \
+        max_t = max_t, max_steps = max_steps, parameter_steps = parameter_steps, stride = stride,\
+        grid_dim = grid_dim,\
+        min_mu = min_mu, max_mu = max_mu,\
+        min_sigma = min_sigma, max_sigma = max_sigma,\
+        min_dt = min_dt, max_dt = max_dt,\
+        min_kr = min_kr, max_kr = max_kr, k0 = k0, \
+        default_dtype = default_dtype, \
+        verbosity = verbosity, \
+        workers = workers)
 
   print("finished")
