@@ -152,6 +152,7 @@ def mantle(pattern, make_kernel, \
             min_growth=0.5,\
             default_dtype=np.float16, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0),\
+            verbose=False, \
             workers=1):
 
   if stride is not None:
@@ -185,26 +186,52 @@ def mantle(pattern, make_kernel, \
 
   while time_elapsed <= max_runtime and total_zooms <= max_zooms:
       
-    min_kr = params[0]
-    max_kr = params[1]
-    min_dt = params[2]
-    max_dt = params[3]
     dynamic_mode = 1 if "asym" in pattern_name else 0
     t1 = time.time()
-    
-    dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
-    krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
 
-    results_img = np.zeros((dts.shape[0], krs.shape[0], 4))
+    # hierarchy of parameters mu > sigma > dt > kr
+    # in other words, if max_mu and max_sigma are both specified, dt and kr are static
+
+    if max_mu is not None:
+      mus = np.arange(min_mu, max_mu, (max_mu-min_mu) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      active_mu = True
+    else:
+      mus = np.array([min_mu])[:,None,None,None]
+      active_mu = False
+
+    if max_sigma is not None:
+      sigmas = np.arange(min_sigma, max_sigma, (max_sigma-min_sigma) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      active_sigma = True
+    else:
+      sigmas = np.array([min_sigma])[:,None,None,None]
+      active_sigma = False
+
+    if (not(active_mu and active_sigma)) and max_dt is not None:
+      dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      active_dt = True
+    else:
+      dts = np.array([min_dt])[:,None,None,None]
+      active_dt = False
+      
+    if (not(active_mu or active_sigma) or not(active_dt)) and max_kr is not None:
+      krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
+      active_kr = True
+    else:
+      krs = np.array([min_kr])[:,None,None,None]
+      active_kr = False
+
+    assert np.sum(np.array([active_kr, active_dt, active_sigma, active_mu])) == 2, "only two parameters should have ranges"
+      
+    results_img = np.zeros((parameter_steps, parameter_steps, 4))
 
     native_dim_h = pattern.shape[-2]
     native_dim_w = pattern.shape[-1]
 
-    explode = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
-    vanish = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
-    done = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
-    accumulated_t = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
-    total_steps = np.zeros((dts.shape[0], krs.shape[0],1,1), dtype=default_dtype)
+    explode = np.zeros((parameter_steps, parameter_steps,1,1), dtype=default_dtype)
+    vanish = np.zeros((parameter_steps, parameter_steps,1,1), dtype=default_dtype)
+    done = np.zeros((parameter_steps, parameter_steps,1,1), dtype=default_dtype)
+    accumulated_t = np.zeros((parameter_steps, parameter_steps,1,1), dtype=default_dtype)
+    total_steps = np.zeros((parameter_steps, parameter_steps,1,1), dtype=default_dtype)
     #starting_grid = np.zeros((dts.shape[0], krs.shape[0], grid_dim, grid_dim), dtype=default_dtype)
     starting_grid = np.zeros((1, 1, grid_dim, grid_dim), dtype=default_dtype)
 
@@ -213,7 +240,7 @@ def mantle(pattern, make_kernel, \
     blue_cmap = plt.get_cmap("Blues")
 
     run_index = 0
-    run_max = dts.shape[0] * krs.shape[0]
+    run_max = parameter_steps**2 #dts.shape[0] * krs.shape[0]
     #print(f"run max {run_max}")
 
     while run_index < run_max:
@@ -221,15 +248,18 @@ def mantle(pattern, make_kernel, \
         last_worker = 1 * workers
         for worker_idx in range(1, workers):
           if run_index < run_max:
-            comm.send((krs, dts, run_index), dest=worker_idx)
+            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_idx)
             #print(f"run index {run_index} sent to worker {worker_idx}")
             run_index += 1
           else:
-            last_worker = worker_idx
+            last_worker = worker_idx-1
 
           
 
         for worker_idx in range(1, last_worker):
+
+          if verbose: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
+
           results_part = comm.recv(source=worker_idx)
           
           run_index_part = results_part[0]
@@ -239,17 +269,84 @@ def mantle(pattern, make_kernel, \
           vanished = results_part[4]
           grid_0 = results_part[5]
           grid = results_part[6]
-          dt = results_part[7]
-          kr = results_part[8]
+
+          mu = results_part[7]
+          sigma = results_part[8]
+          dt = results_part[9]
+          kr = results_part[10]
 
           ii = int(np.floor(run_index_part / parameter_steps))
           jj = run_index_part % parameter_steps
-          if not(np.isclose(dts[ii], dt) or np.isclose(krs[jj], kr)):
-            print("dts or krs rec'd from worker do not match")
-            print(f"{dt}, {kr}, {dts[ii]}, {krs[jj]}, {worker_idx}")
 
-          assert dt == dts[ii], f"wrong dt {dts[ii]} != {dt} from worker exception"
-          assert kr == krs[jj], f"wrong kr {krs[jj]} != {kr} from worker exception"
+          param_indices = [0,0,0,0]
+          active_list = [active_mu, active_sigma, active_dt, active_kr]
+          count_active = 0
+
+          for ll in range(len(param_indices)):
+            if active_list[ll] and count_active == 0:
+              param_indices[ll] = ii
+              count_active += 1
+            elif active_list[ll] and count_active == 1:
+              param_indices[ll] = jj
+              count_active += 1
+
+            if active_list[ll]:
+              if count_active == 1:
+                if ll == 0:
+                  y_ticks = 1.0 * mus
+                  xlabel = "$\mu$"
+                  min_x = min_mu
+                  max_x = max_mu
+                elif ll == 1:
+                  y_ticks = 1.0 * sigmas
+                  xlabel = "$\sigma$"
+                  min_x = min_sigma
+                  max_x = max_sigma
+                elif ll == 2:
+                  y_ticks = 1.0 * dts
+                  xlabel = "$\Delta t$"
+                  min_x = min_dt
+                  max_x = max_dt
+              elif count_active == 2:
+                if ll == 1:
+                  x_ticks = 1.0 * sigmas
+                  ylabel = "$\sigma$"
+                  min_y = min_sigma
+                  max_y = max_sigma
+                elif ll == 2:
+                  x_ticks = 1.0 * dts
+                  ylabel = "$\Delta t$"
+                  min_y = min_dt
+                  max_y = max_dt
+                elif ll == 3:
+                  x_ticks = 1.0 * krs
+                  ylabel = "$k_r$"
+                  min_y = min_kr
+                  max_y = max_kr
+                break
+
+          mu_check = mus[param_indices[0]]
+          sigma_check = sigmas[param_indices[1]]
+          dt_check = dts[param_indices[2]]
+          kr_check = krs[param_indices[3]]
+
+          if not(np.isclose(mu_check, mu)): 
+            print("dt rec'd from worker does not match")
+            print(f"{mu_check}, {mu}, {worker_idx}")
+          if not(np.isclose(sigma_check, sigma)):
+            print("dt rec'd from worker does not match")
+            print(f"{sigma_check}, {sigma}, {worker_idx}")
+          if not(np.isclose(dt_check, dt)):
+            print("dt rec'd from worker does not match")
+            print(f"{dt_check}, {dt}, {worker_idx}")
+          if not(np.isclose(kr_check, kr)):
+            print("kr rec'd from worker does not match")
+            print(f"{kr_check}, {kr}, {worker_idx}")
+
+          assert mu == mu_check, f"expected mu={mu_check}, got {mu}"
+          assert sigma == sigma_check,  f"expected sigma={sigma_check}, got {sigma}"
+          assert dt == dt_check,  f"expected mu={dt_check}, got {dt}"
+          assert kr == kr_check,  f"expected mu={kr_check}, got {kr}"
 
           accumulated_t_part = accumulated_t_part.item()
           accumulated_t_truncated = np.clip(accumulated_t_part, 0, max_t)
@@ -276,26 +373,26 @@ def mantle(pattern, make_kernel, \
 
     fig, ax = plt.subplots(1,1, figsize=(12,12))
     ax.imshow(results[-1][0])
-    dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps)
-    krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps)
     
     number_ticklabels = min([16, parameter_steps])
     ticklabel_period = parameter_steps // number_ticklabels
-    yticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(dts)]
-    xticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(krs)]
+    yticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(x_ticks)]
+    xticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(y_ticks)]
     
-    _ = ax.set_yticks(np.arange(0,dts.shape[0]))
+    _ = ax.set_yticks(np.arange(0,y_ticks.shape[0]))
     _ = ax.set_yticklabels(yticklabels, fontsize=16,  rotation=0)
-    _ = ax.set_xticks(np.arange(0,krs.shape[0]))
+    _ = ax.set_xticks(np.arange(0,x_ticks.shape[0]))
     _ = ax.set_xticklabels(xticklabels, fontsize=16, rotation=90)
-    _ = ax.set_ylabel("step size dt", fontsize=22)
-    _ = ax.set_xlabel("kernel radius", fontsize=22)
+    _ = ax.set_ylabel(ylabel, fontsize=22)
+    _ = ax.set_xlabel(xlabel, fontsize=22)
     
+
     msg2 = f"total elapsed: {t2-t0:.3f} s, last sweep: {t2-t1:.3f}\n"
-    msg = f"    dt from {min_dt:.2e} to {max_dt:.2e}\n"
-    msg += f"    kr from {min_kr:2e} to {max_kr:.2e}\n"
+    msg = f"    {xlabel} from {min_x:.2e} to {max_x:.2e}\n"
+    msg += f"   {ylabel} from {min_y:2e} to {max_y:.2e}\n"
     
-    ax.set_title("disco persistence \n" +msg, fontsize=24)
+    ax.set_title("disco persistence \n" + msg, fontsize=24)
+    plt.tight_layout()
     plt.savefig(f"{root_dir}/assets/disco{time_stamp}_{idx}.png")
     #plt.show() 
        
@@ -344,80 +441,110 @@ def mantle(pattern, make_kernel, \
     metadata += f"{img_savepath}, {accumulated_t_savepath}, {total_steps_savepath}, {explode_savepath}, {vanish_savepath}, {grid_T_savepath}\n"
     with open(metadata_path,"a") as f:
         f.write(metadata)
-        
     # determine next parameter range
-    freq_zoom_dim = (results[-1][0].shape[-2]) // freq_zoom_fraction
-    freq_zoom_stride = 4 + int(parameter_steps/16)
-    freq_zoom_strides = (results[-1][0].shape[-2]-freq_zoom_dim) // freq_zoom_stride +1
-    
-    fzd = freq_zoom_dim
-    fzs = freq_zoom_stride
-    
-    params_list = []
-    entropy = []
-    frequency_entropy = []
-    frequency_ratio = []
-    # Weighted RGB conversion to grayscale
-    gray_image = (1.0 - results[-1][5])
-            #0.29 * results[-1][0][:,:,0] \
-            #+ 0.6*results[-1][0][:,:,1] \
-            #+ 0.11 * results[-1][0][:,:,2]  
-    
-    for ll in range(freq_zoom_strides**2):
-        fzd = freq_zoom_dim
-        fzs = freq_zoom_stride
-        
-        cx = int(np.floor(ll / freq_zoom_strides))
-        cy = ll % freq_zoom_strides
-        
-        params_list.append([krs[cy*fzs].item(), \
-                krs[cy*fzs+fzd].item(),\
-                dts[cx*fzs].item(), \
-                dts[cx*fzs+fzd].item()])
+    if time.time()-t0 < max_t:
+      freq_zoom_dim = (results[-1][5].shape[1]) // freq_zoom_fraction
+      freq_zoom_stride = 4 + int(parameter_steps/4)
+      freq_zoom_strides = (results[-1][5].shape[1]-freq_zoom_dim) // freq_zoom_stride +1
+      
+      fzd = freq_zoom_dim
+      fzs = freq_zoom_stride
+      
+      params_list = []
+      entropy = []
+      frequency_entropy = []
+      frequency_ratio = []
+      # Weighted RGB conversion to grayscale
+      gray_image = (1.0 - results[-1][5])
+              #0.29 * results[-1][0][:,:,0] \
+              #+ 0.6*results[-1][0][:,:,1] \
+              #+ 0.11 * results[-1][0][:,:,2]  
+      
+      for ll in range(freq_zoom_strides**2):
+          fzd = freq_zoom_dim
+          fzs = freq_zoom_stride
+          
+          cx = int(np.floor(ll / freq_zoom_strides))
+          cy = ll % freq_zoom_strides
+          
+          params_list.append([y_ticks[cy*fzs].item(), \
+                  y_ticks[cy*fzs+fzd].item(),\
+                  x_ticks[cx*fzs].item(), \
+                  x_ticks[cx*fzs+fzd].item()])
 
 
-        subimage = gray_image[cx*fzs:cx*fzs+fzd,cy*fzs:cy*fzs+fzd]
-        
-        frequency_ratio.append(compute_frequency_ratio(subimage))
-        entropy.append(compute_entropy(subimage))
-        frequency_entropy.append(compute_frequency_entropy(subimage))
-        
-    
-    plt.figure()
-    plt.subplot(221)
-    plt.imshow(gray_image.squeeze())
-    plt.title("results image")
-    plt.subplot(222)
-    plt.imshow(np.array(frequency_ratio).reshape(freq_zoom_strides, freq_zoom_strides))
-    plt.title("freq. ratio")
-    plt.subplot(223)
-    plt.imshow(np.array(entropy).reshape(freq_zoom_strides, freq_zoom_strides))
-    plt.title("entropy")
-    plt.subplot(224)
-    plt.imshow(np.array(frequency_entropy).reshape(freq_zoom_strides, freq_zoom_strides))
-    plt.title("frequency entropy")
-    plt.tight_layout()
-    plt.savefig(f"{root_dir}/assets/frequency_entropy_{time_stamp}_{idx}.png")
-    #plt.show()
-    
-    params_list_nonblank =  np.array(params_list)[np.array(entropy) > 0]
-    frequency_entropy_nonblank = np.array(frequency_entropy)[np.array(entropy) > 0]
-    frequency_ratio_nonblank = np.array(frequency_ratio)[np.array(entropy) > 0]
-    #params = params_list_nonblank[np.argmax(np.array(frequency_ratio_nonblank))]
-    params = params_list_nonblank[np.argmax(np.array(frequency_entropy_nonblank))]
+          subimage = gray_image[cx*fzs:cx*fzs+fzd,cy*fzs:cy*fzs+fzd]
+          
+          frequency_ratio.append(compute_frequency_ratio(subimage))
+          entropy.append(compute_entropy(subimage))
+          frequency_entropy.append(compute_frequency_entropy(subimage))
+          
+      
+      plt.figure()
+      plt.subplot(221)
+      plt.imshow(gray_image.squeeze())
+      plt.title("results image")
+      plt.subplot(222)
+      plt.imshow(np.array(frequency_ratio).reshape(freq_zoom_strides, freq_zoom_strides))
+      plt.title("freq. ratio")
+      plt.subplot(223)
+      plt.imshow(np.array(entropy).reshape(freq_zoom_strides, freq_zoom_strides))
+      plt.title("entropy")
+      plt.subplot(224)
+      plt.imshow(np.array(frequency_entropy).reshape(freq_zoom_strides, freq_zoom_strides))
+      plt.title("frequency entropy")
+      plt.tight_layout()
+      plt.savefig(f"{root_dir}/assets/frequency_entropy_{time_stamp}_{idx}.png")
+      #plt.show()
+      
+      params_list_nonblank =  np.array(params_list)[np.array(entropy) > 0]
+      frequency_entropy_nonblank = np.array(frequency_entropy)[np.array(entropy) > 0]
+      frequency_ratio_nonblank = np.array(frequency_ratio)[np.array(entropy) > 0]
+      #params = params_list_nonblank[np.argmax(np.array(frequency_ratio_nonblank))]
+      if np.sum(gray_image) == 0 or params_list_nonblank.shape[0] == 0:
+          print("zoom no longer interesting, quitting")
+          break
+      params = params_list_nonblank[np.argmax(np.array(frequency_entropy_nonblank))]
+
+      active_count = 0
+      for ll in range(len(active_list)):
+        if active_list[ll]:
+          if active_count:
+            if ll == 1:
+              min_sigma = params[2]
+              max_sigma = params[3]
+            if ll == 2:
+              min_dt = params[2]
+              max_dt = params[3]
+            if ll == 3: 
+              min_kr = params[2]
+              max_kr = params[3]
+          else:
+            if ll == 0:
+              min_mu = params[0]
+              max_mu = params[1]
+            if ll == 1:
+              min_sigma = params[0]
+              max_sigma = params[1]
+            if ll == 2:
+              min_dt = params[0]
+              max_dt = params[1]
+
+          
+          active_count += 1
+
+        if active_count == 2:
+          break
 
     t3 = time.time()
     idx += 1    
     time_elapsed = t3-t0
     total_zooms += 1
     
-    if np.sum(gray_image) == 0:
-        print("zoom no longer interesting, quitting")
-        break
 
   for worker_idx in range(1, workers):
       print(f"send shutown signal to worker {worker_idx}")
-      comm.send((0,0,-1), dest=worker_idx)
+      comm.send([-1], dest=worker_idx)
 
 def arm(pattern, make_kernel, \
             dynamic_mode=0,\
@@ -435,6 +562,7 @@ def arm(pattern, make_kernel, \
             max_growth=2, \
             min_growth=0.5,\
             default_dtype=np.float16, \
+            verbose=False, \
             clipping_fn=lambda x: np.clip(x, 0.0, 1.0)):
 
 
@@ -444,23 +572,55 @@ def arm(pattern, make_kernel, \
     #comm.send((krs, dts, run_index), dest=worker_idx)
     my_input = comm.recv(source=0)
 
-    if my_input[2] == -1:
+    if my_input[0] == -1:
         print(f"worker {rank} shutting down")
         break
 
-    krs, dts, run_index = my_input[0], my_input[1], my_input[2] 
-    #print(f"run index {run_index} rec'd by worker {rank}")
+    run_index = my_input[0]
+    mus = my_input[1]
+    sigmas = my_input[2]
+    dts = my_input[3]
+    krs = my_input[4]
+    active_list = my_input[5]
 
+    #print(f"run index {run_index} rec'd by worker {rank}")
     ii = int(np.floor(run_index / parameter_steps))
     jj = run_index % parameter_steps
-    dt = dts[ii]
-    kr = krs[jj]
 
+    active_count = 0
+
+    for ll in range(len(active_list)):
       
+      if active_list[ll]:
+
+        if ll == 0:
+          mu = mus[ii]
+        elif ll == 1:
+          sigma = sigmas[ii] if active_count == 0 else sigmas[jj]
+        elif ll == 2:
+          dt = dts[ii] if active_count == 0 else dts[jj]
+        elif ll == 3:
+          kr = krs[jj]
+          assert active_count == 1, "kr cannot be only active parameter in sweep"
+            
+        active_count += 1
+      else:
+        if ll == 0:
+          mu = mus[0]
+        elif ll == 1:
+          sigma = sigmas[0]
+        elif ll == 2:
+          dt = dts[0]
+        elif ll == 3:
+          kr = krs[0]
+
+    #print("active list", active_list)
+    #print(f"worker {rank} starting {run_index} at {mus}, {sigmas}, {dts}, {krs}")
+    #print(f"worker {rank} starting {run_index} at {mu}, {sigma}, {dt}, {kr}")
     kernel = make_kernel(kr.item())
 
     g_mode = 1 if dynamic_mode else 0
-    my_update = make_update_function(min_mu, min_sigma, mode=g_mode)
+    my_update = make_update_function(mu, sigma, mode=g_mode)
 
     if make_inner_kernel is not None:
       inner_kernel = make_inner_kernel(k0)
@@ -528,9 +688,12 @@ def arm(pattern, make_kernel, \
     results_part.append(vanished)
     results_part.append(grid_0)
     results_part.append(grid)
+    results_part.append(mu)
+    results_part.append(sigma)
     results_part.append(dt)
     results_part.append(kr)
 
+    if verbose: print(f"worker {rank} sending results for {run_index} at {mu}, {sigma}, {dt}, {kr}")
     comm.send(results_part, dest=0)
 
 if __name__ == "__main__":
@@ -548,12 +711,13 @@ if __name__ == "__main__":
   parser.add_argument("-nmu", "--min_mu", type=float, default=0.15)
   parser.add_argument("-xmu", "--max_mu", type=float, default=None)
   parser.add_argument("-ns", "--min_sigma", type=float, default=.017)
-  parser.add_argument("-xs", "--max_sigmda", type=float, default=None)
+  parser.add_argument("-xs", "--max_sigma", type=float, default=None)
 
-  parser.add_argument("-ndt", "--min_dt", type=float, default = 0.01)
-  parser.add_argument("-xdt", "--max_dt", type=float, default = 1.01)
-  parser.add_argument("-nkr", "--min_kr", type=float, default = 4)
-  parser.add_argument("-xkr", "--max_kr", type=float, default = 64)
+  parser.add_argument("-ndt", "--min_dt", type=float, default = 0.1)
+  parser.add_argument("-xdt", "--max_dt", type=float, default = None)
+  parser.add_argument("-nkr", "--min_kr", type=float, default = 13)
+  parser.add_argument("-xkr", "--max_kr", type=float, default = None)
+  parser.add_argument("-k0", "--k0", type=float, default=13)
 
   parser.add_argument("-g", "--grid_dim", type=int, default = 256)
 
@@ -563,23 +727,28 @@ if __name__ == "__main__":
   tag = args.tag
   workers = args.workers
 
+  min_mu = args.min_mu
+  max_mu = args.max_mu
+  min_sigma = args.min_sigma
+  max_sigma = args.max_sigma
+
   min_kr = args.min_kr
   max_kr = args.max_kr
   min_dt = args.min_dt
   max_dt = args.max_dt
-  params = [args.min_kr, args.max_kr, args.min_dt, args.max_dt]
   parameter_steps = args.parameter_steps 
   max_t = args.max_t 
   max_steps = max_t / args.min_dt 
   max_growth = 1.3 #args.max_growth 
   min_growth = 0.9 #args.min_growth 
-  #k0 = args.k0 
   grid_dim = args.grid_dim 
   max_runtime = args.max_runtime
 
   stride = min([16, parameter_steps])
   default_dtype = np.float32
   kernel_dim = grid_dim - 6
+  # k0 spec not actually used (overridden by the logic below)
+  k0 = args.k0 
 
   #### kernels
   if "orbium" or "asymdrop" or "scutium_gravidus" in pattern_name:
@@ -613,6 +782,8 @@ if __name__ == "__main__":
   mpi_stability_sweep(pattern, make_kernel, dynamic_mode=dynamic_mode, \
         max_t=max_t, max_steps=max_steps, parameter_steps=parameter_steps, stride=stride,\
         grid_dim=grid_dim,\
+        min_mu=min_mu, max_mu=max_mu,\
+        min_sigma=min_sigma, max_sigma=max_sigma,\
         min_dt=min_dt, max_dt=max_dt,\
         min_kr = min_kr, max_kr=max_kr, k0=k0, \
         default_dtype=default_dtype, \
