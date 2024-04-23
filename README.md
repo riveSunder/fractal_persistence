@@ -1,7 +1,7 @@
 # Exploring the fractal simulosphere in cellular automata
 
-<div style="text-align: center;">
-  ![Orbium support !](assets/orbium_unicaudatus_zoom_lentil_1713751630_726363_img_0.png)
+<div align="center">
+  <img src="assets/orbium_unicaudatus_zoom_lentil_1713751630_726363_img_0.png">
 </div>
 
 ## Getting started
