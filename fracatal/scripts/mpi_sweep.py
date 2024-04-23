@@ -4,6 +4,7 @@ import subprocess
 import os
 
 import numpy.random as npr
+import jax
 from jax import numpy as np
 import skimage
 
@@ -260,13 +261,28 @@ def mantle(pattern, make_kernel, \
 
           
 
-        for worker_idx in range(1, last_worker):
+        #for worker_idx in range(1, last_worker):
+        total_returned = 0
+        while total_returned < (run_max-1):
 
-          if verbosity: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
+          #if verbosity: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
 
-          results_part = comm.recv(source=worker_idx)
+          if total_returned < run_max:
+            results_part = comm.recv()
+            worker_index = results_part[11]
+            run_index_part = results_part[0]
+            if verbosity: print(f"rec'ed {run_index_part} from worker {worker_index}")
+
+            #max_run_index_returned = max([run_index_part, max_run_index_returned])
+            total_returned += 1
+
+          run_index += 1
+          if verbosity: print(f"received {total_returned} so far")
+          if run_index < run_max:
+            if verbosity: print(f"sending {run_index} to worker {worker_index}")
+            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_index)
+
           
-          run_index_part = results_part[0]
           accumulated_t_part = results_part[1]
           total_steps_part = results_part[2]
           exploded = results_part[3]
@@ -696,6 +712,7 @@ def arm(pattern, make_kernel, \
     results_part.append(sigma)
     results_part.append(dt)
     results_part.append(kr)
+    results_part.append(rank)
 
     if verbosity: print(f"worker {rank} sending results for {run_index} at {mu}, {sigma}, {dt}, {kr}")
     comm.send(results_part, dest=0)
