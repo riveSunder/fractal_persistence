@@ -298,35 +298,35 @@ def mantle(pattern, make_kernel, \
               if count_active == 1:
                 if ll == 0:
                   y_ticks = 1.0 * mus
-                  xlabel = "$\mu$"
-                  min_x = min_mu
-                  max_x = max_mu
+                  ylabel = "$\mu$"
+                  min_y = min_mu
+                  max_y = max_mu
                 elif ll == 1:
                   y_ticks = 1.0 * sigmas
-                  xlabel = "$\sigma$"
-                  min_x = min_sigma
-                  max_x = max_sigma
-                elif ll == 2:
-                  y_ticks = 1.0 * dts
-                  xlabel = "$\Delta t$"
-                  min_x = min_dt
-                  max_x = max_dt
-              elif count_active == 2:
-                if ll == 1:
-                  x_ticks = 1.0 * sigmas
                   ylabel = "$\sigma$"
                   min_y = min_sigma
                   max_y = max_sigma
                 elif ll == 2:
-                  x_ticks = 1.0 * dts
+                  y_ticks = 1.0 * dts
                   ylabel = "$\Delta t$"
                   min_y = min_dt
                   max_y = max_dt
+              elif count_active == 2:
+                if ll == 1:
+                  x_ticks = 1.0 * sigmas
+                  xlabel = "$\sigma$"
+                  min_x = min_sigma
+                  max_x = max_sigma
+                elif ll == 2:
+                  x_ticks = 1.0 * dts
+                  xlabel = "$\Delta t$"
+                  min_x = min_dt
+                  max_x = max_dt
                 elif ll == 3:
                   x_ticks = 1.0 * krs
-                  ylabel = "$k_r$"
-                  min_y = min_kr
-                  max_y = max_kr
+                  xlabel = "$k_r$"
+                  min_x = min_kr
+                  max_x = max_kr
                 break
 
           mu_check = mus[param_indices[0]]
@@ -380,8 +380,8 @@ def mantle(pattern, make_kernel, \
     
     number_ticklabels = min([16, parameter_steps])
     ticklabel_period = parameter_steps // number_ticklabels
-    yticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(x_ticks)]
-    xticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(y_ticks)]
+    yticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(y_ticks)]
+    xticklabels = [f"{elem.item():.6e}" if not(mm % ticklabel_period) else "" for mm, elem in enumerate(x_ticks)]
     
     _ = ax.set_yticks(np.arange(0,y_ticks.shape[0]))
     _ = ax.set_yticklabels(yticklabels, fontsize=16,  rotation=0)
@@ -471,10 +471,10 @@ def mantle(pattern, make_kernel, \
           cx = int(np.floor(ll / freq_zoom_strides))
           cy = ll % freq_zoom_strides
           
-          params_list.append([y_ticks[cy*fzs].item(), \
-                  y_ticks[cy*fzs+fzd].item(),\
-                  x_ticks[cx*fzs].item(), \
-                  x_ticks[cx*fzs+fzd].item()])
+          params_list.append([x_ticks[cy*fzs].item(), \
+                  x_ticks[cy*fzs+fzd].item(),\
+                  y_ticks[cx*fzs].item(), \
+                  y_ticks[cx*fzs+fzd].item()])
 
 
           subimage = gray_image[cx*fzs:cx*fzs+fzd,cy*fzs:cy*fzs+fzd]
