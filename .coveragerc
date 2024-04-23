@@ -1,0 +1,19 @@
+[run]
+branch = True
+include =
+  fracatal/scripts/*
+  fracatal/*
+  fracatal/functional_jax/*
+  fracatal/functional_jax/*
+  fracatal/functional_np/*
+omit = 
+  tests/*
+[report]
+branch = True
+include =
+  fracatal/scripts/*
+  fracatal/**
+  fracatal/functional_jax/*
+  fracatal/functional_np/*
+omit = 
+  tests/*
