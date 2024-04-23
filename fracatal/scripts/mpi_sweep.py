@@ -704,27 +704,44 @@ if __name__ == "__main__":
 
   parser = argparse.ArgumentParser()
 
-  parser.add_argument("-n", "--pattern_name", default="asymdrop")
-  parser.add_argument("-a", "--tag", default="exp")
+  parser.add_argument("-n", "--pattern_name", default="asymdrop",\
+      help="the name of the pattern to evaluate, e.g. orbium_unicaudatus. see patterns folder")
+  parser.add_argument("-a", "--tag", default="exp",\
+      help="a string tag to help you find your experiments")
 
-  parser.add_argument("-p", "--parameter_steps", type=int, default=16)
-  parser.add_argument("-r", "--max_runtime", type=float, default=1800)
-  parser.add_argument("-t", "--max_t", type=float, default=16)
+
+  parser.add_argument("-p", "--parameter_steps", type=int, default=16,\
+      help="number of parameter steps to sweep, result will be on a p by p grid")
+  parser.add_argument("-r", "--max_runtime", type=float, default=1800,\
+      help="(wall) time limit for experiment. experiments will always (try to) complete at least one run.")
+  parser.add_argument("-t", "--max_t", type=float, default=16,\
+      help="maximum accumulated simulation time (in time units)")
   parser.add_argument("-w", "--workers", type=int, default=16)
 
-  parser.add_argument("-nmu", "--min_mu", type=float, default=0.15)
-  parser.add_argument("-xmu", "--max_mu", type=float, default=None)
-  parser.add_argument("-ns", "--min_sigma", type=float, default=.017)
-  parser.add_argument("-xs", "--max_sigma", type=float, default=None)
+  parser.add_argument("-nmu", "--min_mu", type=float, default=0.15,\
+      help="min value for mu (growth/target function peak). if no max_mu is provided, min_mu is used throughout")
+  parser.add_argument("-xmu", "--max_mu", type=float, default=None,\
+      help="max value for mu (growth/target function peak)")
+  parser.add_argument("-ns", "--min_sigma", type=float, default=.017,\
+      help="min value for sigma (growth/target function bell width). if no max_sigma is provided, min_mu is used throughout")
+  parser.add_argument("-xs", "--max_sigma", type=float, default=None,\
+      help="max value for sigma")
 
-  parser.add_argument("-ndt", "--min_dt", type=float, default = 0.1)
-  parser.add_argument("-xdt", "--max_dt", type=float, default = None)
-  parser.add_argument("-nkr", "--min_kr", type=float, default = 13)
-  parser.add_argument("-xkr", "--max_kr", type=float, default = None)
-  parser.add_argument("-k0", "--k0", type=float, default=13)
+  parser.add_argument("-ndt", "--min_dt", type=float, default = 0.1,\
+      help="min value for simulation time step dt. used throughout if max_dt is not provided.")
+  parser.add_argument("-xdt", "--max_dt", type=float, default = None,\
+      help="max value for step size dt")
+  parser.add_argument("-nkr", "--min_kr", type=float, default = 13,\
+      help="min value for kernel radius kr. can take float values. min_kr used throughout if max_kr not provided")
+  parser.add_argument("-xkr", "--max_kr", type=float, default = None,\
+      help="max value for kernel radius kr. can take float values.")
+  parser.add_argument("-k0", "--k0", type=float, default=13,\
+      help="native kr value, used to scale glider patterns. currently over-ridden by 13 for Orbium and 31 for Hydrogeminium patterns")
 
-  parser.add_argument("-g", "--grid_dim", type=int, default = 256)
-  parser.add_argument("-v", "--verbosity", type=int, default=0)
+  parser.add_argument("-g", "--grid_dim", type=int, default = 256,\
+      help="grid dimensions for simulation. this must be larger than 2*max_kr+3")
+  parser.add_argument("-v", "--verbosity", type=int, default=0,\
+      help="pass --verbosity 1 to print out debugging info during experiment.")
 
   args = parser.parse_args()
 
