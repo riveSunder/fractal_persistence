@@ -79,7 +79,7 @@ def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
   rr = np.array(rr, dtype=default_dtype)
   return rr
 
-def make_update_function(mean, standard_deviation, mode=0):
+def make_update_function(mean, standard_deviation, mode=0, use_jit=False):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)
 
@@ -96,18 +96,27 @@ def make_update_function(mean, standard_deviation, mode=0):
     else:
       return my_gaussian(x)
 
-
-  return lenia_update
+  if use_jit:
+    return jax.jit(lenia_update)
+  else:
+    return lenia_update
 
 
 def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, \
-    use_jit=True, clipping_function = lambda x: x, default_dtype=np.float32):
+    use_jit=False, clipping_function = lambda x: x, default_dtype=np.float32):
 
+
+  def jit_convolve(grid, kernel):
+    return ft_convolve(grid, kernel, default_dtype=default_dtype)
+
+  if use_jit:
+    my_convolve = jax.jit(jit_convolve)
+  else:
+    my_convolve = jit_convolve
 
   def update_step(grid):
 
-
-    neighborhoods = ft_convolve(grid, kernel, default_dtype=default_dtype)
+    neighborhoods = my_convolve(grid, kernel)
 
     growth = update_function(neighborhoods)
 
