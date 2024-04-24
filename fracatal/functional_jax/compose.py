@@ -5,44 +5,6 @@ import numpy.random as npr
 from fracatal.functional_jax.convolve import ft_convolve
 from fracatal.functional_jax.pad import pad_2d
 
-def compute_entropy(subimage):
-  """
-  Computes Shannon entropy for pixel values in subimage
-  """
-  
-  subimage = np.uint8(255*subimage / subimage.max())
-  eps = 1e-9
-  # compute Shannon entropy 
-  p = np.zeros(256)
-  
-  for ii in range(p.shape[0]):
-    p = p.at[ii].set(np.sum(subimage == ii))
-      
-  # normalize p
-  p = p / p.sum()
-  
-  h = - np.sum( p * np.log2( eps+p))
-  
-  return h
-
-def compute_frequency_ratio(subimage, ft_dim=65):
-  eps= 1e-9
-  rr = make_kernel_field(ft_dim, ft_dim-1)\
-
-  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
-
-  frequency_ratio = (rr * ft_subimage).sum() / (eps + (1.0 - rr) * ft_subimage).sum()
-
-  return frequency_ratio
-
-def compute_frequency_entropy(subimage, ft_dim=65):
-
-  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
-
-  frequency_entropy = compute_entropy(ft_subimage)
-
-  return frequency_entropy
-
 def make_gaussian(a, m, s):
 
   eps = 1e-9
@@ -167,7 +129,7 @@ def make_make_kernel_function(amplitudes, means, standard_deviations, \
 def sigmoid_1(x, mu, alpha, gamma=1):
   return 1 / (1 + np.exp(-4 * (x - mu) / alpha))
 
-def get_smooth_steps_fn(intervals, alpha=0.0125):
+def make_smooth_steps_function(intervals, alpha=0.0125):
   """
   construct an update function from intervals.
   input intervals is a list of lists of interval bounds,
