@@ -1,3 +1,4 @@
+import jax
 from jax import numpy as np
 import numpy.random as npr
 
@@ -99,7 +100,9 @@ def make_update_function(mean, standard_deviation, mode=0):
   return lenia_update
 
 
-def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, clipping_function = lambda x: x, default_dtype=np.float32):
+def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, \
+    use_jit=True, clipping_function = lambda x: x, default_dtype=np.float32):
+
 
   def update_step(grid):
 
@@ -131,7 +134,10 @@ def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, per
 
     return new_grid
 
-  return update_step
+  if use_jit:
+    return jax.jit(update_step)
+  else:
+    return update_step
 
 def make_make_kernel_function(amplitudes, means, standard_deviations, \
     dim=126, default_dtype=np.float32):
