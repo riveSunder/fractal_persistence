@@ -9,6 +9,9 @@ from tests.functional_jax.test_metrics import TestComputeFrequencyRatio, \
     TestComputeFrequencyEntropy
 
 import fracatal
+from fracatal.scripts.mpi_sweep import *
+from fracatal.scripts.v_stability_sweep import *
+from fracatal.scripts.stability_sweep import *
 
 if __name__ == "__main__":
 

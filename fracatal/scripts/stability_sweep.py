@@ -14,7 +14,7 @@ from fracatal.functional_jax.compose import make_gaussian, \
         make_update_step, \
         make_make_kernel_function, \
         sigmoid_1, \
-        get_smooth_steps_fn, \
+        make_smooth_steps_function, \
         make_make_smoothlife_kernel_function, \
         make_smooth_interval, \
         make_smoothlife_update_function, \
