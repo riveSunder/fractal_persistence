@@ -1,7 +1,7 @@
 # Exploring the fractal simulosphere in cellular automata
 
 <div align="center">
-  <img src="assets/orbium_unicaudatus_zoom_lentil_1713751630_726363_img_0.png">
+  <img src="assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
 </div>
 
 ## Getting started
