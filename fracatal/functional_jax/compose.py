@@ -1,46 +1,9 @@
+import jax
 from jax import numpy as np
 import numpy.random as npr
 
 from fracatal.functional_jax.convolve import ft_convolve
 from fracatal.functional_jax.pad import pad_2d
-
-def compute_entropy(subimage):
-  """
-  Computes Shannon entropy for pixel values in subimage
-  """
-  
-  subimage = np.uint8(255*subimage / subimage.max())
-  eps = 1e-9
-  # compute Shannon entropy 
-  p = np.zeros(256)
-  
-  for ii in range(p.shape[0]):
-    p = p.at[ii].set(np.sum(subimage == ii))
-      
-  # normalize p
-  p = p / p.sum()
-  
-  h = - np.sum( p * np.log2( eps+p))
-  
-  return h
-
-def compute_frequency_ratio(subimage, ft_dim=65):
-  eps= 1e-9
-  rr = make_kernel_field(ft_dim, ft_dim-1)\
-
-  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
-
-  frequency_ratio = (rr * ft_subimage).sum() / (eps + (1.0 - rr) * ft_subimage).sum()
-
-  return frequency_ratio
-
-def compute_frequency_entropy(subimage, ft_dim=65):
-
-  ft_subimage = np.abs(np.fft.fftshift(np.fft.fft2(subimage, (ft_dim, ft_dim)))**2)
-
-  frequency_entropy = compute_entropy(ft_subimage)
-
-  return frequency_entropy
 
 def make_gaussian(a, m, s):
 
@@ -78,7 +41,7 @@ def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
   rr = np.array(rr, dtype=default_dtype)
   return rr
 
-def make_update_function(mean, standard_deviation, mode=0):
+def make_update_function(mean, standard_deviation, mode=0, use_jit=False):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)
 
@@ -95,16 +58,27 @@ def make_update_function(mean, standard_deviation, mode=0):
     else:
       return my_gaussian(x)
 
+  if use_jit:
+    return jax.jit(lenia_update)
+  else:
+    return lenia_update
 
-  return lenia_update
+
+def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, \
+    use_jit=False, clipping_function = lambda x: x, default_dtype=np.float32):
 
 
-def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, clipping_function = lambda x: x, default_dtype=np.float32):
+  def jit_convolve(grid, kernel):
+    return ft_convolve(grid, kernel, default_dtype=default_dtype)
+
+  if use_jit:
+    my_convolve = jax.jit(jit_convolve)
+  else:
+    my_convolve = jit_convolve
 
   def update_step(grid):
 
-
-    neighborhoods = ft_convolve(grid, kernel, default_dtype=default_dtype)
+    neighborhoods = my_convolve(grid, kernel)
 
     growth = update_function(neighborhoods)
 
@@ -131,7 +105,10 @@ def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, per
 
     return new_grid
 
-  return update_step
+  if use_jit:
+    return jax.jit(update_step)
+  else:
+    return update_step
 
 def make_make_kernel_function(amplitudes, means, standard_deviations, \
     dim=126, default_dtype=np.float32):
@@ -152,7 +129,7 @@ def make_make_kernel_function(amplitudes, means, standard_deviations, \
 def sigmoid_1(x, mu, alpha, gamma=1):
   return 1 / (1 + np.exp(-4 * (x - mu) / alpha))
 
-def get_smooth_steps_fn(intervals, alpha=0.0125):
+def make_smooth_steps_function(intervals, alpha=0.0125):
   """
   construct an update function from intervals.
   input intervals is a list of lists of interval bounds,

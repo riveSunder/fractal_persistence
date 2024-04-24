@@ -1,7 +1,7 @@
 # Exploring the fractal simulosphere in cellular automata
 
 <div align="center">
-  <img src="assets/orbium_unicaudatus_zoom_lentil_1713751630_726363_img_0.png">
+  <img src="assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
 </div>
 
 ## Getting started
@@ -89,4 +89,4 @@ optional arguments:
 
 # Testing summary
 
-TOTAL                                    64     11     14      7    77% [coverage.txt](coverage.txt) 
+TOTAL                                   201    115     48      9    38% [coverage.txt](coverage.txt) 

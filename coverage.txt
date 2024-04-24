@@ -2,8 +2,10 @@ Name                                  Stmts   Miss Branch BrPart  Cover
 -----------------------------------------------------------------------
 fracatal/__init__.py                      1      0      0      0   100%
 fracatal/functional_jax/__init__.py       0      0      0      0   100%
+fracatal/functional_jax/compose.py      115     93     32      2    16%
 fracatal/functional_jax/convolve.py      14      1      2      1    88%
+fracatal/functional_jax/metrics.py       22     11      2      0    46%
 fracatal/functional_jax/pad.py           22      5      6      3    71%
 fracatal/functional_np/convolve.py       27      5      6      3    76%
 -----------------------------------------------------------------------
-TOTAL                                    64     11     14      7    77%
+TOTAL                                   201    115     48      9    38%
