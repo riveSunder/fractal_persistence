@@ -462,7 +462,7 @@ def mantle(pattern, make_kernel, \
     with open(metadata_path,"a") as f:
         f.write(metadata)
     # determine next parameter range
-    if (time.time()-t0) < max_t:
+    if (time.time()-t0) < max_runtime:
       freq_zoom_dim = (results[-1][5].shape[1]) // freq_zoom_fraction
       freq_zoom_stride = 4 + int(parameter_steps/4)
       freq_zoom_strides = (results[-1][5].shape[1]-freq_zoom_dim) // freq_zoom_stride +1
