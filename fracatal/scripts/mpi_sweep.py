@@ -253,7 +253,7 @@ def mantle(pattern, make_kernel, \
         for worker_idx in range(1, workers):
           if run_index < run_max:
             comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_idx)
-            #print(f"run index {run_index} sent to worker {worker_idx}")
+            if verbosity: print(f"run index {run_index} sent to worker {worker_idx}")
             run_index += 1
           else:
             last_worker = worker_idx
@@ -263,7 +263,7 @@ def mantle(pattern, make_kernel, \
 
         #for worker_idx in range(1, last_worker):
         total_returned = 0
-        while total_returned < (run_max-1):
+        while total_returned < (run_max):
 
           #if verbosity: print(f"rec'ing from worker {worker_idx} of {last_worker-1}")
 
@@ -276,11 +276,11 @@ def mantle(pattern, make_kernel, \
             #max_run_index_returned = max([run_index_part, max_run_index_returned])
             total_returned += 1
 
-          run_index += 1
           if verbosity: print(f"received {total_returned} so far")
           if run_index < run_max:
-            if verbosity: print(f"sending {run_index} to worker {worker_index}")
             comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_index)
+            if verbosity: print(f"run index {run_index} to worker {worker_index}")
+            run_index += 1
 
           
           accumulated_t_part = results_part[1]
@@ -462,7 +462,7 @@ def mantle(pattern, make_kernel, \
     with open(metadata_path,"a") as f:
         f.write(metadata)
     # determine next parameter range
-    if time.time()-t0 < max_t:
+    if (time.time()-t0) < max_t:
       freq_zoom_dim = (results[-1][5].shape[1]) // freq_zoom_fraction
       freq_zoom_stride = 4 + int(parameter_steps/4)
       freq_zoom_strides = (results[-1][5].shape[1]-freq_zoom_dim) // freq_zoom_stride +1
@@ -487,10 +487,10 @@ def mantle(pattern, make_kernel, \
           cx = int(np.floor(ll / freq_zoom_strides))
           cy = ll % freq_zoom_strides
           
-          params_list.append([x_ticks[cy*fzs].item(), \
-                  x_ticks[cy*fzs+fzd].item(),\
-                  y_ticks[cx*fzs].item(), \
-                  y_ticks[cx*fzs+fzd].item()])
+          params_list.append([y_ticks[cy*fzs].item(), \
+                  y_ticks[cy*fzs+fzd].item(),\
+                  x_ticks[cx*fzs].item(), \
+                  x_ticks[cx*fzs+fzd].item()])
 
 
           subimage = gray_image[cx*fzs:cx*fzs+fzd,cy*fzs:cy*fzs+fzd]
