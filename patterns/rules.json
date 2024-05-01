@@ -1,1 +1,268 @@
-{"asymdrop": {"kernel": {"amplitude_k": [1.0], "mu_k": [0.5], "sigma_k": [0.15], "type": "lenia"}, "target": {"mu": [0.12], "sigma": [0.005]}, "type": {"type": "asymptotic"}, "pattern": {"image_file": "patterns/asymdrop.png", "numpy_file": "patterns/asymdrop.npy"}, "symbolic": {"kernel": ["x0", "1.0 * exp(-((0.5-x0)/(1e-9+0.15))**2/2)"], "target": ["n", "exp(-((0.12-n)/(1e-9+0.005))**2/2)"], "update": ""}}}
+{
+   "asymdrop": {
+      "kernel": {
+         "amplitude_k": [
+            1.0
+         ],
+         "mu_k": [
+            0.5
+         ],
+         "sigma_k": [
+            0.15
+         ],
+         "type": "lenia"
+      },
+      "target": {
+         "mu": [
+            0.12
+         ],
+         "sigma": [
+            0.005
+         ]
+      },
+      "type": {
+         "type": "asymptotic"
+      },
+      "pattern": {
+         "image_file": "patterns/asymdrop.png",
+         "numpy_file": "patterns/asymdrop.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "x0",
+            "1.0 * exp(-((0.5-x0)/(1e-9+0.15))**2/2)"
+         ],
+         "target": [
+            "n",
+            "exp(-((0.12-n)/(1e-9+0.005))**2/2)"
+         ],
+         "update": ""
+      }
+   },
+   "orbium_unicaudatus": {
+      "kernel": {
+         "amplitude_k": [
+            1.0
+         ],
+         "mu_k": [
+            0.5
+         ],
+         "sigma_k": [
+            0.15
+         ]
+      },
+      "type": {
+         "type": "lenia"
+      },
+      "growth": {
+         "mu": 0.15,
+         "sigma": 0.015
+      },
+      "pattern": {
+         "image_file": "patterns/orbium_unicaudatus.png",
+         "numpy_file": "patterns/orbium_unicaudatus.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "x0",
+            "1.0 * exp(-((0.5-x0)/(1e-9+0.15))**2/2)"
+         ],
+         "growth": [
+            "n",
+            "2*exp((0.15-n)/(1e-9+0.015))**2/2-1"
+         ],
+         "update": ""
+      }
+   },
+   "scutium_gravidus_single": {
+      "kernel": {
+         "amplitude_k": [
+            1.0
+         ],
+         "mu_k": [
+            0.5
+         ],
+         "sigma_k": [
+            0.15
+         ],
+         "type": "lenia"
+      },
+      "type": {
+         "type": "lenia"
+      },
+      "growth": {
+         "mu": 0.283,
+         "sigma": 0.0369
+      },
+      "pattern": {
+         "image_file": "patterns/scutium_gravidus_single.png",
+         "numpy_file": "patterns/scutium_gravidus_single.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "x0",
+            "1.0 * exp(-((0.5-x0)/(1e-9+0.15))**2/2)"
+         ],
+         "growth": [
+            "n",
+            "2*exp((0.283-n)/(1e-9+0.0369))**2/2-1"
+         ],
+         "update": ""
+      }
+   },
+   "hydrogeminium_natans_pickle": {
+      "kernel": {
+         "amplitude_k": [
+            0.5,
+            1,
+            0.6666666666666666
+         ],
+         "mu_k": [
+            0.0938,
+            0.2814,
+            0.469
+         ],
+         "sigma_k": [
+            0.033,
+            0.033,
+            0.033
+         ]
+      },
+      "type": {
+         "type": "lenia"
+      },
+      "growth": {
+         "mu": 0.26,
+         "sigma": 0.036
+      },
+      "pattern": {
+         "image_file": "patterns/hydrogeminium_natans_pickle.png",
+         "numpy_file": "patterns/hydrogeminium_natans_pickle.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "",
+            ""
+         ],
+         "growth": [
+            "n",
+            "2*exp((0.26-n)/(1e-9+0.036))**2/2-1"
+         ],
+         "update": ""
+      }
+   },
+   "hydrogeminium_natans_crispus": {
+      "kernel": {
+         "amplitude_k": [
+            0.5,
+            1,
+            0.6666666666666666
+         ],
+         "mu_k": [
+            0.0938,
+            0.2814,
+            0.469
+         ],
+         "sigma_k": [
+            0.033,
+            0.033,
+            0.033
+         ]
+      },
+      "type": {
+         "type": "lenia"
+      },
+      "growth": {
+         "mu": 0.26,
+         "sigma": 0.036
+      },
+      "pattern": {
+         "image_file": "patterns/hydrogeminium_natans_crispus.png",
+         "numpy_file": "patterns/hydrogeminium_natans_crispus.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "",
+            ""
+         ],
+         "growth": [
+            "n",
+            "2*exp((0.26-n)/(1e-9+0.036))**2/2-1"
+         ],
+         "update": ""
+      }
+   },
+   "hydrogeminium_natans_wobbler": {
+      "kernel": {
+         "amplitude_k": [
+            0.5,
+            1,
+            0.6666666666666666
+         ],
+         "mu_k": [
+            0.0938,
+            0.2814,
+            0.469
+         ],
+         "sigma_k": [
+            0.033,
+            0.033,
+            0.033
+         ]
+      },
+      "type": {
+         "type": "lenia"
+      },
+      "growth": {
+         "mu": 0.26,
+         "sigma": 0.036
+      },
+      "pattern": {
+         "image_file": "patterns/hydrogeminium_natans_wobbler.png",
+         "numpy_file": "patterns/hydrogeminium_natans_wobbler.npy"
+      },
+      "symbolic": {
+         "kernel": [
+            "",
+            ""
+         ],
+         "growth": [
+            "n",
+            "2*exp((0.26-n)/(1e-9+0.036))**2/2-1"
+         ],
+         "update": ""
+      }
+   },
+   "smoothlife_single": {
+      "kernel": {
+         "r_inner": 0.3333333333333333,
+         "r_outer": 1.05,
+         "type": "smoothlife"
+      },
+      "genesis": {
+         "smooth_intervals": {
+            "alpha_genesis": [
+               0.028
+            ],
+            "interval_genesis": [
+               0.278,
+               0.365
+            ]
+         }
+      },
+      "persistence": {
+         "smooth_intervals": {
+            "alpha_persistence": 0.147,
+            "interval_persistence": [
+               0.267,
+               0.445
+            ]
+         }
+      },
+      "pattern": {
+         "image_file": "patterns/smoothlife_single.png",
+         "numpy_file": "patterns/smoothlife_single.npy"
+      },
+      "symbolic": {}
+   }
+}

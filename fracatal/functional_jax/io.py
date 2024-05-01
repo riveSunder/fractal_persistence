@@ -39,7 +39,7 @@ def load_rule(name):
 def save_rule_dict(rule_dict):
 
   with open(RULE_PATH, "w") as f:
-    json.dump(rule_dict, f)
+    json.dump(rule_dict, f, indent=1)
   
 
 def add_rule(rule):
