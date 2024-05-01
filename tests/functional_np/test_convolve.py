@@ -38,3 +38,6 @@ class TestFTConvolveNp(unittest.TestCase):
       grid_2 = ft_convolve(grid_0, empty_kernel)
       self.assertAlmostEqual(0.0, grid_2.mean(), places=6)
       
+if __name__ == "__main__":
+
+  unittest.main(verbosity=2)

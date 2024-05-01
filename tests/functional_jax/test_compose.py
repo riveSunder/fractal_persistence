@@ -42,5 +42,7 @@ class TestMakeKernelField(unittest.TestCase):
       self.assertEqual(2, len(kernel_field.shape))
 
 
-    
+if __name__ == "__main__":
+
+  unittest.main(verbosity=2)
 

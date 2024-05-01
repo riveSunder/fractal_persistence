@@ -30,3 +30,7 @@ class TestLoadRule(unittest.TestCase):
       rule = load_rule(name=my_key)
 
       self.assertEqual(type(rule), type({}))
+
+if __name__ == "__main__":
+
+  unittest.main(verbosity=2)

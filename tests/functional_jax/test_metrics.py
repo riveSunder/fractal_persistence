@@ -52,3 +52,7 @@ class TestComputeFrequencyEntropy(unittest.TestCase):
     frequency_ratio_b = compute_frequency_ratio(b)
 
     self.assertLess(frequency_ratio_b, frequency_ratio_a)
+
+if __name__ == "__main__":
+
+  unittest.main(verbosity=2)
