@@ -89,4 +89,4 @@ optional arguments:
 
 # Testing summary
 
-TOTAL                                   201    115     48      9    38% [coverage.txt](coverage.txt) 
+TOTAL                                     937    779    262     16    15% [coverage.txt](coverage.txt) 
