@@ -193,6 +193,8 @@ def mantle(pattern, make_kernel, \
     dynamic_mode = 1 if "asym" in pattern_name else 0
     t1 = time.time()
 
+    # new hierarchy (to facilitate visualization flow)
+    # mu > 
     # hierarchy of parameters mu > sigma > dt > kr
     # in other words, if max_mu and max_sigma are both specified, dt and kr are static
 
@@ -463,9 +465,9 @@ def mantle(pattern, make_kernel, \
         f.write(metadata)
     # determine next parameter range
     if (time.time()-t0) < max_runtime:
-      freq_zoom_dim = (results[-1][5].shape[1]) // freq_zoom_fraction
-      freq_zoom_stride = 4 + int(parameter_steps/4)
-      freq_zoom_strides = (results[-1][5].shape[1]-freq_zoom_dim) // freq_zoom_stride +1
+      freq_zoom_dim = (parameter_steps) // freq_zoom_fraction
+      freq_zoom_stride = freq_zoom_dim // 2 #4 + int(parameter_steps/4)
+      freq_zoom_strides = (parameter_steps-freq_zoom_dim) // freq_zoom_stride +1
       
       fzd = freq_zoom_dim
       fzs = freq_zoom_stride
@@ -476,30 +478,21 @@ def mantle(pattern, make_kernel, \
       frequency_ratio = []
       # Weighted RGB conversion to grayscale
       gray_image = (1.0 - results[-1][5])
-              #0.29 * results[-1][0][:,:,0] \
-              #+ 0.6*results[-1][0][:,:,1] \
-              #+ 0.11 * results[-1][0][:,:,2]  
       
-      for ll in range(freq_zoom_strides**2):
-          fzd = freq_zoom_dim
-          fzs = freq_zoom_stride
-          
-          cx = int(np.floor(ll / freq_zoom_strides))
-          cy = ll % freq_zoom_strides
-          
-          params_list.append([y_ticks[cy*fzs].item(), \
-                  y_ticks[cy*fzs+fzd].item(),\
-                  x_ticks[cx*fzs].item(), \
-                  x_ticks[cx*fzs+fzd].item()])
+      for ch in range(0, parameter_steps-fzd+1, fzs): #freq_zoom_strides**2):
+          for cw in range(0, parameter_steps-fzd+1, fzs):
+            params_list.append([y_ticks[ch].item(), \
+                    y_ticks[ch+fzd].item(),\
+                    x_ticks[cw].item(), \
+                    x_ticks[cw+fzd].item()])
 
 
-          subimage = gray_image[cx*fzs:cx*fzs+fzd,cy*fzs:cy*fzs+fzd]
+            subimage = gray_image[ch:ch+fzd,cw:cw+fzd]
+            
+            frequency_ratio.append(compute_frequency_ratio(subimage))
+            entropy.append(compute_entropy(subimage))
+            frequency_entropy.append(compute_frequency_entropy(subimage))
           
-          frequency_ratio.append(compute_frequency_ratio(subimage))
-          entropy.append(compute_entropy(subimage))
-          frequency_entropy.append(compute_frequency_entropy(subimage))
-          
-      
       plt.figure()
       plt.subplot(221)
       plt.imshow(gray_image.squeeze())
@@ -515,7 +508,6 @@ def mantle(pattern, make_kernel, \
       plt.title("frequency entropy")
       plt.tight_layout()
       plt.savefig(f"{root_dir}/assets/frequency_entropy_{time_stamp}_{idx}.png")
-      #plt.show()
       
       params_list_nonblank =  np.array(params_list)[np.array(entropy) > 0]
       frequency_entropy_nonblank = np.array(frequency_entropy)[np.array(entropy) > 0]
