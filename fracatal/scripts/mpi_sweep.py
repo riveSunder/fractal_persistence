@@ -193,33 +193,41 @@ def mantle(pattern, make_kernel, \
     dynamic_mode = 1 if "asym" in pattern_name else 0
     t1 = time.time()
 
-    # new hierarchy (to facilitate visualization flow)
-    # mu > 
+    # new priority
+    # mu > dt > sigma > kr 
     # hierarchy of parameters mu > sigma > dt > kr
     # in other words, if max_mu and max_sigma are both specified, dt and kr are static
 
     if max_mu is not None:
-      mus = np.arange(min_mu, max_mu, (max_mu-min_mu) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      max_mu, min_mu = max([max_mu, min_mu]), min([max_mu, min_mu])
+      mus = np.arange(max_mu, min_mu, -(max_mu-min_mu) / parameter_steps, dtype=default_dtype)[:,None, None,None]
       active_mu = True
     else:
       mus = np.array([min_mu])[:,None,None,None]
       active_mu = False
 
-    if max_sigma is not None:
+
+    if max_dt is not None:
+      max_dt, min_dt = max([max_dt, min_dt]), min([max_dt, min_dt])
+      if max_mu is None:
+        dts = np.arange(max_dt, min_dt, -(max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      else: 
+        dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
+      active_dt = True
+    else:
+      dts = np.array([min_dt])[:,None,None,None]
+      active_dt = False
+
+    if (not(active_mu and active_dt)) and max_sigma is not None:
+      max_sigma, min_sigma = max([max_sigma, min_sigma]), min([max_sigma, min_sigma])
       sigmas = np.arange(min_sigma, max_sigma, (max_sigma-min_sigma) / parameter_steps, dtype=default_dtype)[:,None, None,None]
       active_sigma = True
     else:
       sigmas = np.array([min_sigma])[:,None,None,None]
       active_sigma = False
-
-    if (not(active_mu and active_sigma)) and max_dt is not None:
-      dts = np.arange(min_dt, max_dt, (max_dt-min_dt) / parameter_steps, dtype=default_dtype)[:,None, None,None]
-      active_dt = True
-    else:
-      dts = np.array([min_dt])[:,None,None,None]
-      active_dt = False
       
-    if (not(active_mu or active_sigma) or not(active_dt)) and max_kr is not None:
+    if (not(active_mu or active_dt) or not(active_sigma)) and max_kr is not None:
+      max_kr, min_kr = max([max_kr, min_kr]), min([max_kr, min_kr])
       krs = np.arange(min_kr, max_kr, (max_kr-min_kr) / parameter_steps, dtype=default_dtype)[:,None,None,None]
       active_kr = True
     else:
@@ -254,7 +262,7 @@ def mantle(pattern, make_kernel, \
         last_worker = 1 * workers
         for worker_idx in range(1, workers):
           if run_index < run_max:
-            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_idx)
+            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_dt, active_sigma, active_kr]), dest=worker_idx)
             if verbosity: print(f"run index {run_index} sent to worker {worker_idx}")
             run_index += 1
           else:
@@ -301,7 +309,7 @@ def mantle(pattern, make_kernel, \
           jj = run_index_part % parameter_steps
 
           param_indices = [0,0,0,0]
-          active_list = [active_mu, active_sigma, active_dt, active_kr]
+          active_list = [active_mu, active_dt, active_sigma, active_kr]
           count_active = 0
 
           for ll in range(len(param_indices)):
@@ -320,26 +328,26 @@ def mantle(pattern, make_kernel, \
                   min_y = min_mu
                   max_y = max_mu
                 elif ll == 1:
-                  y_ticks = 1.0 * sigmas
-                  ylabel = "$\sigma$"
-                  min_y = min_sigma
-                  max_y = max_sigma
+                  y_ticks = 1.0 * dts #sigmas
+                  ylabel = "$\Delta t$" #"$\sigma$"
+                  min_y = min_dt #sigma
+                  max_y = max_dt #sigma
                 elif ll == 2:
-                  y_ticks = 1.0 * dts
-                  ylabel = "$\Delta t$"
-                  min_y = min_dt
-                  max_y = max_dt
+                  y_ticks = 1.0 * sigmas #dts
+                  ylabel = "$\sigma$" #Delta t$"
+                  min_y = min_sigma #dt
+                  max_y = max_sigma #dt
               elif count_active == 2:
                 if ll == 1:
-                  x_ticks = 1.0 * sigmas
-                  xlabel = "$\sigma$"
-                  min_x = min_sigma
-                  max_x = max_sigma
+                  x_ticks = 1.0 * dts #sigmas
+                  xlabel = "$\Delta t$" #sigma$"
+                  min_x = min_dt #sigma
+                  max_x = max_dt #sigma
                 elif ll == 2:
-                  x_ticks = 1.0 * dts
-                  xlabel = "$\Delta t$"
-                  min_x = min_dt
-                  max_x = max_dt
+                  x_ticks = 1.0 * sigmas #dts
+                  xlabel = "$\sigma$" #Delta t$"
+                  min_x = min_sigma #dt
+                  max_x = max_sigma #dt
                 elif ll == 3:
                   x_ticks = 1.0 * krs
                   xlabel = "$k_r$"
@@ -348,15 +356,15 @@ def mantle(pattern, make_kernel, \
                 break
 
           mu_check = mus[param_indices[0]]
-          sigma_check = sigmas[param_indices[1]]
-          dt_check = dts[param_indices[2]]
+          dt_check = dts[param_indices[1]]
+          sigma_check = sigmas[param_indices[2]]
           kr_check = krs[param_indices[3]]
 
           if not(np.isclose(mu_check, mu)): 
-            print("dt rec'd from worker does not match")
+            print("mu rec'd from worker does not match")
             print(f"{mu_check}, {mu}, {worker_idx}")
           if not(np.isclose(sigma_check, sigma)):
-            print("dt rec'd from worker does not match")
+            print("sigma rec'd from worker does not match")
             print(f"{sigma_check}, {sigma}, {worker_idx}")
           if not(np.isclose(dt_check, dt)):
             print("dt rec'd from worker does not match")
@@ -492,6 +500,7 @@ def mantle(pattern, make_kernel, \
             frequency_ratio.append(compute_frequency_ratio(subimage))
             entropy.append(compute_entropy(subimage))
             frequency_entropy.append(compute_frequency_entropy(subimage))
+            if verbosity: print(ch, y_ticks[ch], cw, x_ticks[cw], frequency_entropy[-1])
           
       plt.figure()
       plt.subplot(221)
@@ -523,11 +532,15 @@ def mantle(pattern, make_kernel, \
         if active_list[ll]:
           if active_count:
             if ll == 1:
+              if active_mu:
+                min_dt = params[2]
+                max_dt = params[3]
+              else:
+                max_dt = params[2]
+                min_dt = params[3]
+            if ll == 2:
               min_sigma = params[2]
               max_sigma = params[3]
-            if ll == 2:
-              min_dt = params[2]
-              max_dt = params[3]
             if ll == 3: 
               min_kr = params[2]
               max_kr = params[3]
@@ -536,11 +549,16 @@ def mantle(pattern, make_kernel, \
               min_mu = params[0]
               max_mu = params[1]
             if ll == 1:
+              if active_mu:
+                min_dt = params[0]
+                max_dt = params[1]
+              else:
+                max_dt = params[0]
+                min_dt = params[1]
+
+            if ll == 2:
               min_sigma = params[0]
               max_sigma = params[1]
-            if ll == 2:
-              min_dt = params[0]
-              max_dt = params[1]
 
           
           active_count += 1
@@ -608,9 +626,9 @@ def arm(pattern, make_kernel, \
         if ll == 0:
           mu = mus[ii]
         elif ll == 1:
-          sigma = sigmas[ii] if active_count == 0 else sigmas[jj]
-        elif ll == 2:
           dt = dts[ii] if active_count == 0 else dts[jj]
+        elif ll == 2:
+          sigma = sigmas[ii] if active_count == 0 else sigmas[jj]
         elif ll == 3:
           kr = krs[jj]
           assert active_count == 1, "kr cannot be only active parameter in sweep"
@@ -620,9 +638,9 @@ def arm(pattern, make_kernel, \
         if ll == 0:
           mu = mus[0]
         elif ll == 1:
-          sigma = sigmas[0]
-        elif ll == 2:
           dt = dts[0]
+        elif ll == 2:
+          sigma = sigmas[0]
         elif ll == 3:
           kr = krs[0]
 
