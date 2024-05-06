@@ -418,8 +418,8 @@ def mantle(pattern, make_kernel, \
     
 
     msg2 = f"total elapsed: {t2-t0:.3f} s, last sweep: {t2-t1:.3f}\n"
-    msg = f"    {xlabel} from {min_x:.2e} to {max_x:.2e}\n"
-    msg += f"   {ylabel} from {min_y:2e} to {max_y:.2e}\n"
+    msg = f"    {xlabel} from {min_x:.8e} to {max_x:.8e}\n"
+    msg += f"   {ylabel} from {min_y:.8e} to {max_y:.8e}\n"
     
     ax.set_title("disco persistence \n" + msg, fontsize=24)
     plt.tight_layout()
