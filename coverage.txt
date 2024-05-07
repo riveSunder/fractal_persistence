@@ -8,8 +8,8 @@ fracatal/functional_jax/io.py              48     26     12      1    38%
 fracatal/functional_jax/metrics.py         22     11      2      0    46%
 fracatal/functional_jax/pad.py             22      5      6      3    71%
 fracatal/functional_np/convolve.py         27      5      6      3    76%
-fracatal/scripts/mpi_sweep.py             482    453    148      4     5%
+fracatal/scripts/mpi_sweep.py             492    463    156      4     5%
 fracatal/scripts/stability_sweep.py        75     65     26      1    11%
 fracatal/scripts/v_stability_sweep.py     131    120     28      1     8%
 -------------------------------------------------------------------------
-TOTAL                                     937    779    262     16    15%
+TOTAL                                     947    789    270     16    14%
