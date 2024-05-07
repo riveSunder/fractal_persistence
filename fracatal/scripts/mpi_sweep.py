@@ -800,7 +800,9 @@ if __name__ == "__main__":
   verbosity = args.verbosity
 
   #### kernels
-  if "orbium" or "asymdrop" or "scutium_gravidus" in pattern_name:
+  if "orbium" in pattern_name or \
+      "asymdrop" in pattern_name or \
+      "scutium_gravidus" in pattern_name:
   
       #o. unicaudatus
       # the neighborhood kernel
