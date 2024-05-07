@@ -459,14 +459,16 @@ def mantle(pattern, make_kernel, \
 
     if metadata_path is None:
       metadata_path = os.path.join(save_dir, f"metadata_{time_stamp}.txt")
-      metadata = "index, pattern_name, min_dt, max_dt, min_kr, max_kr, parameter_steps, max_t, max_steps, max_runtime, "
+      metadata = "index, pattern_name, min_mu, max_mu, min_dt,  max_dt, min_sigma, max_sigma, "
+      metadata += "min_kr, max_kr, parameter_steps, max_t, max_steps, max_runtime, "
       metadata += "time_stamp, sim_time_elapsed,  total_time_elapsed, "
       metadata += "img_savepath, accumulated_t_savepath, total_steps_savepath, explode_savepath, vanish_savepath, grid_T_savepath\n"
 
       with open(metadata_path,"w") as f:
           f.write(metadata)
 
-    metadata = f"{idx}, {pattern_name}, {min_dt}, {max_dt}, {min_kr}, {max_kr}, {parameter_steps}, {max_t}, {max_steps}, {max_runtime}, "
+    metadata = f"{idx}, {pattern_name}, {np.min(mus)}, {np.max(mus)}, {np.min(dts)}, {np.max(dts)}, "
+    metadata += f"{np.min(sigmas)}, {np.max(sigmas)}, {np.min(krs)}, {np.max(krs)}, {parameter_steps}, {max_t}, {max_steps}, {max_runtime}, "
     metadata += f"{time_stamp}, {t2-t1:2f}, {t2-t0:2f}, "
     metadata += f"{img_savepath}, {accumulated_t_savepath}, {total_steps_savepath}, {explode_savepath}, {vanish_savepath}, {grid_T_savepath}\n"
     with open(metadata_path,"a") as f:
