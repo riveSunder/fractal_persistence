@@ -234,6 +234,7 @@ def mantle(pattern, make_kernel, \
       krs = np.array([min_kr])[:,None,None,None]
       active_kr = False
 
+    active_list = [active_mu, active_dt, active_sigma, active_kr]
     assert np.sum(np.array([active_kr, active_dt, active_sigma, active_mu])) == 2, "only two parameters should have ranges"
       
     results_img = np.zeros((parameter_steps, parameter_steps, 4))
@@ -260,13 +261,13 @@ def mantle(pattern, make_kernel, \
     while run_index < run_max:
         ## parallel mpi section ****
         last_worker = 1 * workers
-        for worker_idx in range(1, workers):
+        for worker_index in range(1, workers):
           if run_index < run_max:
-            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_dt, active_sigma, active_kr]), dest=worker_idx)
-            if verbosity: print(f"run index {run_index} sent to worker {worker_idx}")
+            comm.send((run_index, mus, sigmas, dts, krs, active_list), dest=worker_index)
+            if verbosity: print(f"run index {run_index} sent to worker {worker_index}")
             run_index += 1
           else:
-            last_worker = worker_idx
+            last_worker = worker_index
             break
 
           
@@ -288,7 +289,7 @@ def mantle(pattern, make_kernel, \
 
           if verbosity: print(f"received {total_returned} so far")
           if run_index < run_max:
-            comm.send((run_index, mus, sigmas, dts, krs, [active_mu, active_sigma, active_dt, active_kr]), dest=worker_index)
+            comm.send((run_index, mus, sigmas, dts, krs, active_list), dest=worker_index)
             if verbosity: print(f"run index {run_index} to worker {worker_index}")
             run_index += 1
 
@@ -309,7 +310,6 @@ def mantle(pattern, make_kernel, \
           jj = run_index_part % parameter_steps
 
           param_indices = [0,0,0,0]
-          active_list = [active_mu, active_dt, active_sigma, active_kr]
           count_active = 0
 
           for ll in range(len(param_indices)):
@@ -355,6 +355,7 @@ def mantle(pattern, make_kernel, \
                   max_x = max_kr
                 break
 
+          if verbosity: print(ii, jj, param_indices)
           mu_check = mus[param_indices[0]]
           dt_check = dts[param_indices[1]]
           sigma_check = sigmas[param_indices[2]]
@@ -362,21 +363,21 @@ def mantle(pattern, make_kernel, \
 
           if not(np.isclose(mu_check, mu)): 
             print("mu rec'd from worker does not match")
-            print(f"{mu_check}, {mu}, {worker_idx}")
+            print(f"{mu_check}, {mu}, {worker_index}")
           if not(np.isclose(sigma_check, sigma)):
             print("sigma rec'd from worker does not match")
-            print(f"{sigma_check}, {sigma}, {worker_idx}")
+            print(f"{sigma_check}, {sigma}, {worker_index}")
           if not(np.isclose(dt_check, dt)):
             print("dt rec'd from worker does not match")
-            print(f"{dt_check}, {dt}, {worker_idx}")
+            print(f"{dt_check}, {dt}, {worker_index}")
           if not(np.isclose(kr_check, kr)):
             print("kr rec'd from worker does not match")
-            print(f"{kr_check}, {kr}, {worker_idx}")
+            print(f"{kr_check}, {kr}, {worker_index}")
 
-          assert mu == mu_check, f"expected mu={mu_check}, got {mu}"
-          assert sigma == sigma_check,  f"expected sigma={sigma_check}, got {sigma}"
-          assert dt == dt_check,  f"expected mu={dt_check}, got {dt}"
-          assert kr == kr_check,  f"expected mu={kr_check}, got {kr}"
+          assert mu == mu_check, f"expected mu={mu_check}, got {mu} from worker {worker_idx}/{run_index_part}"
+          assert sigma == sigma_check,  f"expected sigma={sigma_check}, got {sigma} from worker {worker_idx}/{run_index_part}"
+          assert dt == dt_check,  f"expected mu={dt_check}, got {dt} from worker {worker_idx}/{run_index_part}"
+          assert kr == kr_check,  f"expected mu={kr_check}, got {kr} from worker {worker_idx}/{run_index_part}"
 
           accumulated_t_part = accumulated_t_part.item()
           accumulated_t_truncated = np.clip(accumulated_t_part, 0, max_t)
@@ -424,11 +425,9 @@ def mantle(pattern, make_kernel, \
     ax.set_title("disco persistence \n" + msg, fontsize=24)
     plt.tight_layout()
     plt.savefig(f"{root_dir}/assets/disco{time_stamp}_{idx}.png")
-    #plt.show() 
        
     print(msg2 + msg)
     # save results
-    # results_img, accumulated_t, total_steps, explode, vanish, done, grid_0, grid
     
     img_savepath = os.path.join(save_dir, f"{exp_name}_img_{idx}.png")
     img_npy_savepath = os.path.join(save_dir, f"{exp_name}_img_{idx}.npy")
@@ -454,19 +453,18 @@ def mantle(pattern, make_kernel, \
     np.save(grid_T_savepath, results[-1][7])
     
     # log experiment metadata
-    #metadata = "index, min_dt, max_dt, min_kr, max_kr, parameter_steps, time_stamp, "
-    #metadata += "img_savepath, accumulated_t_savepath, total_steps_savepath, explode_savepath, vanish_savepath, grid_T_savepath\n"
-
     if metadata_path is None:
       metadata_path = os.path.join(save_dir, f"metadata_{time_stamp}.txt")
-      metadata = "index, pattern_name, min_dt, max_dt, min_kr, max_kr, parameter_steps, max_t, max_steps, max_runtime, "
+      metadata = "index, pattern_name, min_mu, max_mu, min_dt,  max_dt, min_sigma, max_sigma, "
+      metadata += "min_kr, max_kr, parameter_steps, max_t, max_steps, max_runtime, "
       metadata += "time_stamp, sim_time_elapsed,  total_time_elapsed, "
       metadata += "img_savepath, accumulated_t_savepath, total_steps_savepath, explode_savepath, vanish_savepath, grid_T_savepath\n"
 
       with open(metadata_path,"w") as f:
           f.write(metadata)
 
-    metadata = f"{idx}, {pattern_name}, {min_dt}, {max_dt}, {min_kr}, {max_kr}, {parameter_steps}, {max_t}, {max_steps}, {max_runtime}, "
+    metadata = f"{idx}, {pattern_name}, {np.min(mus)}, {np.max(mus)}, {np.min(dts)}, {np.max(dts)}, "
+    metadata += f"{np.min(sigmas)}, {np.max(sigmas)}, {np.min(krs)}, {np.max(krs)}, {parameter_steps}, {max_t}, {max_steps}, {max_runtime}, "
     metadata += f"{time_stamp}, {t2-t1:2f}, {t2-t0:2f}, "
     metadata += f"{img_savepath}, {accumulated_t_savepath}, {total_steps_savepath}, {explode_savepath}, {vanish_savepath}, {grid_T_savepath}\n"
     with open(metadata_path,"a") as f:
@@ -613,9 +611,10 @@ def arm(pattern, make_kernel, \
     krs = my_input[4]
     active_list = my_input[5]
 
-    #print(f"run index {run_index} rec'd by worker {rank}")
+    if verbosity: print(f"run index {run_index} rec'd by worker {rank}")
     ii = int(np.floor(run_index / parameter_steps))
     jj = run_index % parameter_steps
+    if verbosity: print(f"p {parameter_steps}, {ii}, {jj}")
 
     active_count = 0
 
@@ -801,7 +800,9 @@ if __name__ == "__main__":
   verbosity = args.verbosity
 
   #### kernels
-  if "orbium" or "asymdrop" or "scutium_gravidus" in pattern_name:
+  if "orbium" in pattern_name or \
+      "asymdrop" in pattern_name or \
+      "scutium_gravidus" in pattern_name:
   
       #o. unicaudatus
       # the neighborhood kernel
