@@ -51,3 +51,7 @@ def compute_frequency_entropy(subimage, ft_dim=65):
   frequency_entropy = compute_entropy(ft_subimage)
 
   return frequency_entropy
+
+if __name__ == "__main__":
+
+  unittest.main(verbosity=2)

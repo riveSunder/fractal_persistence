@@ -7,7 +7,7 @@ import torch
 from fracatal.functional_pt.convolve import ft_convolve
 
 
-class TestFTConvolveTorch(unittest.TestCase):
+class TestFTConvolvePT(unittest.TestCase):
 
   def setUp(self):
     npr.seed(13)

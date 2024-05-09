@@ -10,6 +10,11 @@ from tests.functional_jax.test_metrics import TestComputeFrequencyRatio, \
     TestComputeEntropy,\
     TestComputeFrequencyEntropy
 
+from tests.functional_pt.test_convolve import TestFTConvolvePT
+from tests.functional_pt.test_metrics import TestComputeFrequencyRatioPT, \
+    TestComputeEntropyPT, \
+    TestComputeFrequencyEntropyPT
+
 import fracatal
 from fracatal.scripts.mpi_sweep import *
 from fracatal.scripts.v_stability_sweep import *

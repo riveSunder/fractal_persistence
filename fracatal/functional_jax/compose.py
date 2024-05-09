@@ -31,8 +31,6 @@ def make_mixed_gaussian(amplitudes, means, std_devs):
 
 def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
 
-  #dim = kernel_radius * 2 + 1
-
   x =  np.arange(-dim / 2, dim / 2 + 1, 1)
   xx, yy = np.meshgrid(x,x)
 
