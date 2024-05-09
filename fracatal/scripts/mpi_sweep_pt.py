@@ -487,7 +487,7 @@ def mantle(pattern, make_kernel, \
       # Weighted RGB conversion to grayscale
       gray_image = (1.0 - results[-1][5])
 
-      for ch in range(0, parameter_steps-fzd+1, fzs): #freq_zoom_strides**2):
+      for ch in range(0, parameter_steps-fzd+1, fzs): 
           for cw in range(0, parameter_steps-fzd+1, fzs):
             params_list.append([y_ticks[ch].item(), \
                     y_ticks[ch+fzd-1].item(),\
@@ -495,32 +495,29 @@ def mantle(pattern, make_kernel, \
                     x_ticks[cw+fzd-1].item()])
 
 
+            resize_to = max([parameter_steps // 16, 32])
             subimage = gray_image[ch:ch+fzd,cw:cw+fzd]
-            
-            frequency_ratio.append(compute_frequency_ratio(subimage))
-            entropy.append(compute_entropy(subimage))
+            subimage = torch.tensor(skimage.transform.resize(subimage.cpu().numpy(), \
+                (resize_to, resize_to, 1, 1), order=5, anti_aliasing=True))
+
+            #frequency_ratio.append(compute_frequency_ratio(subimage))
+            #entropy.append(compute_entropy(subimage))
             frequency_entropy.append(compute_frequency_entropy(subimage))
             if verbosity: print(ch, y_ticks[ch], cw, x_ticks[cw], frequency_entropy[-1])
-          
+
       plt.figure()
-      plt.subplot(221)
+      plt.subplot(121)
       plt.imshow(gray_image.squeeze())
       plt.title("results image")
-      plt.subplot(222)
-      plt.imshow(np.array(frequency_ratio).reshape(freq_zoom_strides, freq_zoom_strides))
-      plt.title("freq. ratio")
-      plt.subplot(223)
-      plt.imshow(np.array(entropy).reshape(freq_zoom_strides, freq_zoom_strides))
-      plt.title("entropy")
-      plt.subplot(224)
+      plt.subplot(122)
       plt.imshow(np.array(frequency_entropy).reshape(freq_zoom_strides, freq_zoom_strides))
       plt.title("frequency entropy")
       plt.tight_layout()
       plt.savefig(f"{root_dir}/assets/frequency_entropy_{time_stamp}_{idx}.png")
-      
-      params_list_nonblank =  torch.tensor(params_list)[torch.tensor(entropy) > 0]
-      frequency_entropy_nonblank = torch.tensor(frequency_entropy)[torch.tensor(entropy) > 0]
-      frequency_ratio_nonblank = torch.tensor(frequency_ratio)[torch.tensor(entropy) > 0]
+
+      params_list_nonblank =  torch.tensor(params_list)[torch.tensor(frequency_entropy) > 0]
+      frequency_entropy_nonblank = torch.tensor(frequency_entropy)[torch.tensor(frequency_entropy) > 0]
+      #frequency_ratio_nonblank = torch.tensor(frequency_ratio)[torch.tensor(entropy) > 0]
 
       if torch.sum(gray_image) == 0 or params_list_nonblank.shape[0] == 0:
           print("zoom no longer interesting, quitting")
