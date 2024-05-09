@@ -53,7 +53,7 @@ def make_make_kernel_function(amplitudes, means, standard_deviations, \
     return kernel
 
   return make_kernel
-
+  
 def make_update_function(mean, standard_deviation, mode=0, use_jit=False):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)

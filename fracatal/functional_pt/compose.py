@@ -5,13 +5,14 @@ import torch
 from fracatal.functional_pt.convolve import ft_convolve
 from fracatal.functional_pt.pad import pad_2d
 
-def make_gaussian(a, m, s):
+def make_gaussian(a, m, s, device=torch.device("cpu")):
 
-  eps = 1e-9
+  eps = torch.tensor([1e-9]).to(device)
 
   def gaussian(x):
 
     return a * torch.exp(-((x-m)/(eps+s))**2 / 2)
+
 
   return gaussian
 
@@ -29,21 +30,36 @@ def make_mixed_gaussian(amplitudes, means, std_devs):
 
   return gaussian_mixture
 
-def make_kernel_field(kernel_radius, dim=126, default_dtype=torch.float32):
+def make_kernel_field(kernel_radius, dim=122, default_dtype=torch.float32):
 
   x =  torch.arange(-dim / 2, dim / 2 + 1, 1)
   xx, yy = torch.meshgrid(x,x)
 
   rr = torch.sqrt(xx**2 + yy**2) / kernel_radius
-  rr = torch.tensor(rr, dtype=default_dtype)
+  rr = rr.to(default_dtype) 
 
   return rr
   
-def make_update_function(mean, standard_deviation, mode=0):
+def make_make_kernel_function(amplitudes, means, standard_deviations, \
+    dim=122, default_dtype=torch.float32, device=torch.device("cpu")):
+
+  def make_kernel(kernel_radius):
+
+    gm = make_mixed_gaussian(amplitudes, means, standard_deviations)
+    rr = make_kernel_field(kernel_radius, dim=dim, default_dtype=default_dtype)
+
+    kernel = gm(rr)[None,None,:,:]
+    kernel = kernel / kernel.sum()
+
+    return kernel.to(device)
+
+  return make_kernel
+
+def make_update_function(mean, standard_deviation, mode=0, device=torch.device("cpu")):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)
 
-  my_gaussian = make_gaussian(1.0, mean, standard_deviation)
+  my_gaussian = make_gaussian(1.0, mean, standard_deviation, device=device)
 
   def lenia_update(x):
     """
@@ -93,19 +109,4 @@ def make_update_step(update_function, kernel, dt, mode=0, \
     return new_grid
 
   return update_step
-
-def make_make_kernel_function(amplitudes, means, standard_deviations, \
-    dim=122, default_dtype=torch.float32):
-
-  def make_kernel(kernel_radius):
-
-    gm = make_mixed_gaussian(amplitudes, means, standard_deviations)
-    rr = make_kernel_field(kernel_radius, dim=dim, default_dtype=default_dtype)
-
-    kernel = gm(rr)[None,None,:,:]
-    kernel = kernel / kernel.sum()
-
-    return kernel
-
-  return make_kernel
 
