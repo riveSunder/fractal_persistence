@@ -31,8 +31,6 @@ def make_mixed_gaussian(amplitudes, means, std_devs):
 
 def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
 
-  #dim = kernel_radius * 2 + 1
-
   x =  np.arange(-dim / 2, dim / 2 + 1, 1)
   xx, yy = np.meshgrid(x,x)
 
@@ -41,6 +39,21 @@ def make_kernel_field(kernel_radius, dim=126, default_dtype=np.float32):
   rr = np.array(rr, dtype=default_dtype)
   return rr
 
+def make_make_kernel_function(amplitudes, means, standard_deviations, \
+    dim=122, default_dtype=np.float32):
+
+  def make_kernel(kernel_radius):
+
+    gm = make_mixed_gaussian(amplitudes, means, standard_deviations)
+    rr = make_kernel_field(kernel_radius, dim=dim, default_dtype=default_dtype)
+
+    kernel = gm(rr)[None,None,:,:]
+    kernel = kernel / kernel.sum()
+
+    return kernel
+
+  return make_kernel
+  
 def make_update_function(mean, standard_deviation, mode=0, use_jit=False):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)
@@ -64,8 +77,10 @@ def make_update_function(mean, standard_deviation, mode=0, use_jit=False):
     return lenia_update
 
 
-def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, persistence_function=None, \
-    use_jit=False, clipping_function = lambda x: x, default_dtype=np.float32):
+def make_update_step(update_function, kernel, dt, mode=0, \
+    inner_kernel=None, persistence_function=None, \
+    use_jit=False, clipping_function = lambda x: x, \
+    default_dtype=np.float32):
 
 
   def jit_convolve(grid, kernel):
@@ -110,20 +125,6 @@ def make_update_step(update_function, kernel, dt, mode=0, inner_kernel=None, per
   else:
     return update_step
 
-def make_make_kernel_function(amplitudes, means, standard_deviations, \
-    dim=126, default_dtype=np.float32):
-
-  def make_kernel(kernel_radius):
-
-    gm = make_mixed_gaussian(amplitudes, means, standard_deviations)
-    rr = make_kernel_field(kernel_radius, dim=dim, default_dtype=default_dtype)
-
-    kernel = gm(rr)[None,None,:,:]
-    kernel = kernel / kernel.sum()
-
-    return kernel
-
-  return make_kernel
 
 # smooth life
 def sigmoid_1(x, mu, alpha, gamma=1):
