@@ -10,7 +10,7 @@ def compute_entropy(subimage):
   Computes Shannon entropy for pixel values in subimage
   """
   
-  subimage = torch.tensor(255*subimage / subimage.max(), dtype=torch.uint8)
+  subimage = (255*subimage / subimage.max()).to(torch.uint8)
 
   eps = 1e-9
   # compute Shannon entropy 
