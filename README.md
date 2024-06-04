@@ -4,6 +4,31 @@
   <img src="assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
 </div>
 
+## Replicating Results and Figures for ALife Submission #131
+
+After following instructions in "Getting Started" below, you can replicate the results for ALife 2024 submission #131 
+
+
+```
+# wide view of asymdrop glider autopoietic competence
+python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_zoom -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.001 1.01 -nkr 4 -xkr 64 -t 10.0 -v 0 -m cpu
+    
+# zoomed view of asymdrop glider autopoietic competence
+python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_zoom -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.135 0.1428125 -nkr 51.28125 -xkr 51.8125 -t 10.0 -v 0 -m cpu
+```
+
+`alife_2024_131_figures.ipynb` can be used to replicate the figures.
+
+<div align="center">
+  <img src="assets/asymdrop_summary.png">
+  Figure 1
+</div>
+
+<div align="center">
+  <img src="assets/asymdrop_nonplatonic.png">
+  Figure 2
+</div>
+
 ## Getting started
 
 The main dependencies you'll need are skimage, jax, mpi4py, matplotlib, and their dependencies. `jupyter` and `coverage` are also required for running notebooks and tracking unit test coverage, respectively.
