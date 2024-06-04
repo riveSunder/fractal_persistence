@@ -1,1 +1,1 @@
-import fracatal.functional
+import fracatal.functional_np
