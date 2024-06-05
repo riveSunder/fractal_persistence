@@ -423,7 +423,7 @@ def mantle(pattern, make_kernel, \
     
     ax.set_title("disco persistence \n" + msg, fontsize=24)
     plt.tight_layout()
-    plt.savefig(f"{root_dir}/assets/disco{time_stamp}_{idx}.png")
+    plt.savefig(f"{root_dir}/assets/disco_{exp_name}_{idx}.png")
        
     print(msg2 + msg)
     # save results
