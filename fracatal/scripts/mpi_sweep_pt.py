@@ -703,6 +703,7 @@ def arm(pattern, make_kernel, \
       if g < min_growth:
         vanished = True
         break
+    #print(min_growth, max_growth, g, exploded, vanished)
     #print(f"worker {rank} finished {run_index} sim with acc. t: {accumulated_t_part.item()}")
     #print(f"dt: {dt.item():.3e} kr: {kr.item()}")
     #print(exploded, vanished, g)
@@ -744,6 +745,11 @@ if __name__ == "__main__":
   parser.add_argument("-t", "--max_t", type=float, default=16,\
       help="maximum accumulated simulation time (in time units)")
   parser.add_argument("-w", "--workers", type=int, default=16)
+
+  parser.add_argument("-ng", "--min_growth", type=float, default=.9,\
+      help="minimum relative mass for determining mass homeostasis")
+  parser.add_argument("-xg", "--max_growth", type=float, default=1.3,\
+      help="maximum relative mass for determining mass homeostasis")
 
   parser.add_argument("-nmu", "--min_mu", type=float, default=0.15,\
       help="min value for mu (growth/target function peak). if no max_mu is provided, min_mu is used throughout")
@@ -788,8 +794,8 @@ if __name__ == "__main__":
   parameter_steps = args.parameter_steps 
   max_t = args.max_t 
   max_steps = max_t / args.min_dt 
-  max_growth = 1.3 #args.max_growth 
-  min_growth = 0.9 #args.min_growth 
+  max_growth = args.max_growth 
+  min_growth = args.min_growth 
   grid_dim = args.grid_dim 
   max_runtime = args.max_runtime
   my_device = torch.device(args.my_device)
@@ -804,7 +810,8 @@ if __name__ == "__main__":
   #### kernels
   if "orbium" in pattern_name or \
       "asymdrop" in pattern_name or \
-      "scutium_gravidus" in pattern_name:
+      "scutium_gravidus" in pattern_name or\
+      "gyropteron":
   
       #o. unicaudatus
       # the neighborhood kernel
@@ -836,6 +843,7 @@ if __name__ == "__main__":
     mpi_stability_sweep(pattern, make_kernel, dynamic_mode = dynamic_mode, \
           max_t = max_t, max_steps = max_steps, parameter_steps = parameter_steps, stride = stride,\
           grid_dim = grid_dim,\
+          min_growth=min_growth, max_growth=max_growth, \
           min_mu = min_mu, max_mu = max_mu,\
           min_sigma = min_sigma, max_sigma = max_sigma,\
           min_dt = min_dt, max_dt = max_dt,\
