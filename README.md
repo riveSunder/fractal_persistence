@@ -11,10 +11,10 @@ After following instructions in "Getting Started" below, you can replicate the r
 
 ```
 # wide view of asymdrop glider autopoietic competence
-python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_wide -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.001 1.01 -nkr 4 -xkr 64 -ng 0.9 -xg 1.3 -t 10.0 -v 0 -m cpu
+python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_wide -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.001 -xdt 1.01 -nkr 4 -xkr 64 -ng 0.9 -xg 1.3 -t 10.0 -v 0 -m cpu
     
-# zoomed view of asymdrop glider autopoietic competence
-python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_zoom -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.135 0.1428125 -nkr 51.28125 -xkr 51.8125 -ng 0.9 -xg 1.3  -t 10.0 -v 0 -m cpu
+ zoomed view of asymdrop glider autopoietic competence
+python -m fracatal.scripts.mpi_sweep_pt -m fracatal.scripts.mpi_sweep_pt -r 60 -a asymdrop_camera_ready_zoom -n asymdrop -g 256 -p 1024 -w 48 -nmu 0.12 -ns 0.005 -ndt 0.135 -xdt 0.1428125 -nkr 51.28125 -xkr 51.8125 -ng 0.9 -xg 1.3  -t 10.0 -v 0 -m cpu
 ```
 
 `alife_2024_131_figures.ipynb` can be used to replicate the figures.
