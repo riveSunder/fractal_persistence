@@ -33,7 +33,7 @@ def make_mixed_gaussian(amplitudes, means, std_devs):
 def make_kernel_field(kernel_radius, dim=122, default_dtype=torch.float32):
 
   x =  torch.arange(-dim / 2, dim / 2 + 1, 1)
-  xx, yy = torch.meshgrid(x,x)
+  xx, yy = torch.meshgrid(x, x, indexing="ij")
 
   rr = torch.sqrt(xx**2 + yy**2) / kernel_radius
   rr = rr.to(default_dtype) 
