@@ -4,6 +4,7 @@ import torch
 
 from fracatal.functional_pt.convolve import ft_convolve
 from fracatal.functional_pt.pad import pad_2d
+from fracatal.functional_pt.adamata import AdamAutomaton
 
 def make_gaussian(a, m, s, device=torch.device("cpu")):
 
@@ -55,7 +56,8 @@ def make_make_kernel_function(amplitudes, means, standard_deviations, \
 
   return make_kernel
 
-def make_update_function(mean, standard_deviation, mode=0, device=torch.device("cpu")):
+def make_update_function(mean, standard_deviation, mode=0, \
+    alpha = 0.1, beta_1=0.8, beta_2=0.99, device=torch.device("cpu")):
   # mode 0: use 2*f(x) -1
   # mode 1: use f(x)
 
@@ -67,12 +69,22 @@ def make_update_function(mean, standard_deviation, mode=0, device=torch.device("
     """
     if mode == 0:
       return 2 * my_gaussian(x) - 1
+    elif mode == 1:
+        return my_gaussian(x)
     elif mode == 2:
       return my_gaussian(x) - 1
     else:
       return my_gaussian(x)
 
-  return lenia_update
+  if mode == 3:
+    #Adam automata: Adamata
+    adamata = AdamAutomaton(beta_1=beta_1, beta_2=beta_2)
+    adamata.init_growth(mu=mean, sigma=standard_deviation)
+    return adamata
+
+  else:
+
+    return lenia_update
 
 def make_update_step(update_function, kernel, dt, mode=0, \
     inner_kernel=None, persistence_function=None, \
@@ -82,6 +94,12 @@ def make_update_step(update_function, kernel, dt, mode=0, \
   def update_step(grid):
 
     neighborhoods = ft_convolve(grid, kernel)
+
+    if mode == 3:
+
+      update_function.set_alpha(dt)
+
+      return update_function(grid, neighborhoods)
 
     growth = update_function(neighborhoods)
 

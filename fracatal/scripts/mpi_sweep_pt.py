@@ -595,7 +595,7 @@ def arm(pattern, make_kernel, \
             device=torch.device("cpu")):
 
 
-  starting_grid = torch.zeros((1, 1, grid_dim, grid_dim), dtype=default_dtype)
+  starting_grid = torch.zeros((1, pattern.shape[1], grid_dim, grid_dim), dtype=default_dtype)
 
   while True:
     #comm.send((krs, dts, run_index), dest=worker_idx)
@@ -646,7 +646,7 @@ def arm(pattern, make_kernel, \
 
     kernel = make_kernel(kr.item()).to(device)
 
-    g_mode = 1 if dynamic_mode else 0
+    g_mode = dynamic_mode #1 if dynamic_mode else 0
     my_update = make_update_function(mu, sigma, mode=g_mode, device=device)
 
     if make_inner_kernel is not None:
@@ -680,7 +680,7 @@ def arm(pattern, make_kernel, \
 
     kernel = pad_2d(kernel, grid.shape)
 
-    starting_sum = grid.sum()
+    starting_sum = grid[:,0,:,:].sum()
 
     exploded = False
     vanished = False
@@ -692,7 +692,7 @@ def arm(pattern, make_kernel, \
 
       grid = update_step(grid)
 
-      g = grid.sum() / starting_sum
+      g = grid[:,0,:,:].sum() / starting_sum
 
       accumulated_t_part += dt
       total_steps_counter += 1
@@ -837,7 +837,12 @@ if __name__ == "__main__":
   make_kernel = make_make_kernel_function(amplitudes, means, \
           standard_deviations, dim=kernel_dim, default_dtype=default_dtype, device=my_device)
 
-  dynamic_mode = 1 if "asym" in pattern_name else 0
+  if "asymdrop" == pattern_name:
+    dynamic_mode = 1
+  elif "adorbium" == pattern_name:
+    dynamic_mode = 3
+  else:
+    dynamic_mode = 0
   
   with torch.no_grad():
     mpi_stability_sweep(pattern, make_kernel, dynamic_mode = dynamic_mode, \
