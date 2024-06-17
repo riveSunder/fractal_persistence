@@ -33,8 +33,8 @@ class TestComputeEntropy(unittest.TestCase):
     a = npr.rand(1,1,32,32)
     b = np.ones((1,1,32,32))
 
-    frequency_ratio_a = compute_frequency_ratio(a)
-    frequency_ratio_b = compute_frequency_ratio(b)
+    frequency_ratio_a = compute_entropy(a)
+    frequency_ratio_b = compute_entropy(b)
 
     self.assertLess(frequency_ratio_b, frequency_ratio_a)
 
@@ -48,8 +48,8 @@ class TestComputeFrequencyEntropy(unittest.TestCase):
     a = npr.rand(1,1,32,32)
     b = np.ones((1,1,32,32))
 
-    frequency_ratio_a = compute_frequency_ratio(a)
-    frequency_ratio_b = compute_frequency_ratio(b)
+    frequency_ratio_a = compute_frequency_entropy(a)
+    frequency_ratio_b = compute_frequency_entropy(b)
 
     self.assertLess(frequency_ratio_b, frequency_ratio_a)
 

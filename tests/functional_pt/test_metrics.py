@@ -35,8 +35,8 @@ class TestComputeEntropyPT(unittest.TestCase):
     a = torch.rand(1,1,32,32)
     b = torch.ones((1,1,32,32))
 
-    frequency_ratio_a = compute_frequency_ratio(a)
-    frequency_ratio_b = compute_frequency_ratio(b)
+    frequency_ratio_a = compute_entropy(a)
+    frequency_ratio_b = compute_entropy(b)
 
     self.assertLess(frequency_ratio_b, frequency_ratio_a)
 
@@ -50,8 +50,8 @@ class TestComputeFrequencyEntropyPT(unittest.TestCase):
     a = torch.rand(1,1,32,32)
     b = torch.ones((1,1,32,32))
 
-    frequency_ratio_a = compute_frequency_ratio(a)
-    frequency_ratio_b = compute_frequency_ratio(b)
+    frequency_ratio_a = compute_frequency_entropy(a)
+    frequency_ratio_b = compute_frequency_entropy(b)
 
     self.assertLess(frequency_ratio_b, frequency_ratio_a)
 

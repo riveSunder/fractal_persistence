@@ -423,7 +423,7 @@ def mantle(pattern, make_kernel, \
     
     ax.set_title("disco persistence \n" + msg, fontsize=24)
     plt.tight_layout()
-    plt.savefig(f"{root_dir}/assets/disco{time_stamp}_{idx}.png")
+    plt.savefig(f"{root_dir}/assets/disco_{exp_name}_{idx}.png")
        
     print(msg2 + msg)
     # save results
@@ -571,7 +571,7 @@ def mantle(pattern, make_kernel, \
     
 
   for worker_idx in range(1, workers):
-      print(f"send shutown signal to worker {worker_idx}")
+      if verbosity: print(f"send shutown signal to worker {worker_idx}")
       comm.send([-1], dest=worker_idx)
 
 def arm(pattern, make_kernel, \
@@ -595,14 +595,14 @@ def arm(pattern, make_kernel, \
             device=torch.device("cpu")):
 
 
-  starting_grid = torch.zeros((1, 1, grid_dim, grid_dim), dtype=default_dtype)
+  starting_grid = torch.zeros((1, pattern.shape[1], grid_dim, grid_dim), dtype=default_dtype)
 
   while True:
     #comm.send((krs, dts, run_index), dest=worker_idx)
     my_input = comm.recv(source=0)
 
     if my_input[0] == -1:
-        print(f"worker {rank} shutting down")
+        if verbosity: print(f"worker {rank} shutting down")
         break
 
     run_index = my_input[0]
@@ -646,7 +646,7 @@ def arm(pattern, make_kernel, \
 
     kernel = make_kernel(kr.item()).to(device)
 
-    g_mode = 1 if dynamic_mode else 0
+    g_mode = dynamic_mode #1 if dynamic_mode else 0
     my_update = make_update_function(mu, sigma, mode=g_mode, device=device)
 
     if make_inner_kernel is not None:
@@ -680,7 +680,7 @@ def arm(pattern, make_kernel, \
 
     kernel = pad_2d(kernel, grid.shape)
 
-    starting_sum = grid.sum()
+    starting_sum = grid[:,0,:,:].sum()
 
     exploded = False
     vanished = False
@@ -692,7 +692,7 @@ def arm(pattern, make_kernel, \
 
       grid = update_step(grid)
 
-      g = grid.sum() / starting_sum
+      g = grid[:,0,:,:].sum() / starting_sum
 
       accumulated_t_part += dt
       total_steps_counter += 1
@@ -703,6 +703,7 @@ def arm(pattern, make_kernel, \
       if g < min_growth:
         vanished = True
         break
+    #print(min_growth, max_growth, g, exploded, vanished)
     #print(f"worker {rank} finished {run_index} sim with acc. t: {accumulated_t_part.item()}")
     #print(f"dt: {dt.item():.3e} kr: {kr.item()}")
     #print(exploded, vanished, g)
@@ -744,6 +745,11 @@ if __name__ == "__main__":
   parser.add_argument("-t", "--max_t", type=float, default=16,\
       help="maximum accumulated simulation time (in time units)")
   parser.add_argument("-w", "--workers", type=int, default=16)
+
+  parser.add_argument("-ng", "--min_growth", type=float, default=.9,\
+      help="minimum relative mass for determining mass homeostasis")
+  parser.add_argument("-xg", "--max_growth", type=float, default=1.3,\
+      help="maximum relative mass for determining mass homeostasis")
 
   parser.add_argument("-nmu", "--min_mu", type=float, default=0.15,\
       help="min value for mu (growth/target function peak). if no max_mu is provided, min_mu is used throughout")
@@ -788,8 +794,8 @@ if __name__ == "__main__":
   parameter_steps = args.parameter_steps 
   max_t = args.max_t 
   max_steps = max_t / args.min_dt 
-  max_growth = 1.3 #args.max_growth 
-  min_growth = 0.9 #args.min_growth 
+  max_growth = args.max_growth 
+  min_growth = args.min_growth 
   grid_dim = args.grid_dim 
   max_runtime = args.max_runtime
   my_device = torch.device(args.my_device)
@@ -804,7 +810,8 @@ if __name__ == "__main__":
   #### kernels
   if "orbium" in pattern_name or \
       "asymdrop" in pattern_name or \
-      "scutium_gravidus" in pattern_name:
+      "scutium_gravidus" in pattern_name or\
+      "gyropteron":
   
       #o. unicaudatus
       # the neighborhood kernel
@@ -830,12 +837,18 @@ if __name__ == "__main__":
   make_kernel = make_make_kernel_function(amplitudes, means, \
           standard_deviations, dim=kernel_dim, default_dtype=default_dtype, device=my_device)
 
-  dynamic_mode = 1 if "asym" in pattern_name else 0
+  if "asymdrop" == pattern_name:
+    dynamic_mode = 1
+  elif "adorbium" == pattern_name:
+    dynamic_mode = 3
+  else:
+    dynamic_mode = 0
   
   with torch.no_grad():
     mpi_stability_sweep(pattern, make_kernel, dynamic_mode = dynamic_mode, \
           max_t = max_t, max_steps = max_steps, parameter_steps = parameter_steps, stride = stride,\
           grid_dim = grid_dim,\
+          min_growth=min_growth, max_growth=max_growth, \
           min_mu = min_mu, max_mu = max_mu,\
           min_sigma = min_sigma, max_sigma = max_sigma,\
           min_dt = min_dt, max_dt = max_dt,\
@@ -845,4 +858,4 @@ if __name__ == "__main__":
           workers = workers, 
           device = my_device)
 
-  print("finished")
+  if verbosity: print("finished")
