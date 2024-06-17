@@ -571,7 +571,7 @@ def mantle(pattern, make_kernel, \
     
 
   for worker_idx in range(1, workers):
-      print(f"send shutown signal to worker {worker_idx}")
+      if verbosity: print(f"send shutown signal to worker {worker_idx}")
       comm.send([-1], dest=worker_idx)
 
 def arm(pattern, make_kernel, \
@@ -602,7 +602,7 @@ def arm(pattern, make_kernel, \
     my_input = comm.recv(source=0)
 
     if my_input[0] == -1:
-        print(f"worker {rank} shutting down")
+        if verbosity: print(f"worker {rank} shutting down")
         break
 
     run_index = my_input[0]
@@ -858,4 +858,4 @@ if __name__ == "__main__":
           workers = workers, 
           device = my_device)
 
-  print("finished")
+  if verbosity: print("finished")
