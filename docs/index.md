@@ -3,7 +3,8 @@
 
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/riveSunder/yuca_docs/master/assets/s11_slow_glider_vagopteron_glider.gif">
+<img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
+  <img src="">
   <br><br><strong>Left:</strong> Evolved slow glider from s11 Glaberish CA rule set. <strong>Right:</strong> evolved glider in <em>Vagopteron</em> Lenia rule set. 
 </p>
 
