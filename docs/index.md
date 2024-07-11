@@ -3,12 +3,13 @@
 
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/riveSunder/yuca_docs/master/assets/s11_slow_glider_vagopteron_glider.gif">
+<img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
+  <img src="">
   <br><br><strong>Left:</strong> Evolved slow glider from s11 Glaberish CA rule set. <strong>Right:</strong> evolved glider in <em>Vagopteron</em> Lenia rule set. 
 </p>
 
 ### Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia
-* [Slides (ALife 2024)](https://rivesunder.github.io/fractal_persistence/slide_000)
+* [Slides (ALife 2024)](https://rivesunder.github.io/fractal_persistence/al24_slide_000)
 * [Code](https://github.com/rivesunder/fractal_persistence)
 * Paper (ALife proceedings 2024) _coming soon_
 * Paper (ArXiV) _coming soon_
