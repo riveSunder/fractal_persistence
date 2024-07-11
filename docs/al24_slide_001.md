@@ -13,22 +13,24 @@
 	<object width="768" height="768" type="application/x-shockwave-flash" data="__FLASH__.SWF">
 		<!-- Firefox uses the `data` attribute above, IE/Safari uses the param below -->
 		<param name="movie" value="__FLASH__.SWF" />
-		<param name="flashvars" value="controlbar=over&amp;image=__POSTER__.JPG&amp;file=https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid0a_orbium_unicaudatus_.mp4" />
+		<param name="flashvars" value="controlbar=over&amp;image=__POSTER__.JPG&amp;file=https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid0a_orbium_unicaudatus.mp4" />
 		<!-- fallback image. note the title field below, put the title of the video there -->
 		<img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid0a_thumbnail.png" width="768" height="768" alt="thumbnail of _Orbium_ glider"
 		     title="No video playback capabilities, please download the video below" />
 	</object>
 </video>
-<p>	<strong>Download Video:</strong>
-	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid0a_orbium_unicaudatus_.mp4">"MP4"</a>
+<p>	
+  An <em>Orbium</em> glider in a Lenia CA ([Chan 2019](https://www.complex-systems.com/abstracts/v28_i03_a01/))
+  <strong>Download Video:</strong>
+	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid0a_orbium_unicaudatus.mp4">"MP4"</a>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
 </p>
 
 </div>
 
-* Unlike previous, discrete CA, continuous cellular automata approximate an underlying mathematical ideal 
-* Discretization in space and time has been named as the "necessary evil" of continuous CA by Rudy Rucker ([Rucker 1999](file:///home/rive/Downloads/rucker_continuous_CAs_in_2D-2.pdf))
+### Unlike previous, discrete CA, continuous cellular automata approximate an underlying mathematical ideal 
+### Discretization in space and time has been named as the "necessary evil" of continuous CA by Rudy Rucker ([Rucker 1999](file:///home/rive/Downloads/rucker_continuous_CAs_in_2D-2.pdf))
 
 
 {:style="text-align:center;"}
-[Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_000) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002)
