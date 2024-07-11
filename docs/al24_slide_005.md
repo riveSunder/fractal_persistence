@@ -1,4 +1,4 @@
-# Continuous Cellular Automata 
+# Plausible Causes of non-Platonic Persistence 
 
 {:style="text-align:center;"}
 ![Lenia update equation](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_kojima_ikegami.png)
@@ -6,9 +6,13 @@
 {:style="text-align:center;"}
 ![Lenia update equation](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/noclip_lenia_kojima_ikegami.png)
 
-### [Kojima and Ikegami 2023](https://direct.mit.edu/isal/proceedings/isal2023/35/43/116815) found that asymptotic Lenia (ALenia), 
-### Given the lack of a clipping function in ALenia, the authors reasoned that non-Platonic instability may be due.
-### They found evidence supporting their hypothesis in observations of a non-Platonic _Orbium_ in Lenia running at very low `dt`.
+### * [Kojima and Ikegami 2023](https://direct.mit.edu/isal/proceedings/isal2023/35/43/116815) found no examples of non-Platonic persistence in asymptotic Lenia (ALenia): "[...] asymptotic Lenia behaves continuously over time".
+### * Given the lack of a clipping function in ALenia, the authors reasoned that non-Platonic instability may be caused or related to the clipping function.
+### * They found evidence supporting their hypothesis in observations of a non-Platonic _Orbium_ in Lenia running at very low `dt`, without a clipping function.
+
+## Hypotheses:
+### 1. Asymptotic Lenia does not display non-Platonism (no self-organizing patterns become unstable in finer simulation).
+### 2. Clipping is necessary for non-Platonic persistence. 
 
 
 {:style="text-align:center;"}
