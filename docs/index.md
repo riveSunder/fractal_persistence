@@ -8,7 +8,7 @@
 </p>
 
 ### Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia
-* [Slides (ALife 2024)](https://rivesunder.github.io/fractal_persistence/slide_000)
+* [Slides (ALife 2024)](https://rivesunder.github.io/fractal_persistence/al24_slide_000)
 * [Code](https://github.com/rivesunder/fractal_persistence)
 * Paper (ALife proceedings 2024) _coming soon_
 * Paper (ArXiV) _coming soon_
