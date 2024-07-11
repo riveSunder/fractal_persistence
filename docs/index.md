@@ -1,6 +1,4 @@
-# `fractal_persistence`
-## Exploring fractal details in CA glider instability
-
+# Exploring fractal details in CA glider instability
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/banner_figure_orbium_unicaudatus_dt_sigma.png">
