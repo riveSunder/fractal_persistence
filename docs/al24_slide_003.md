@@ -20,6 +20,7 @@
 </video>
 <p>	
   <em>Orbium</em> glider in Lenia CA, progressively smaller step size dt. 
+  <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid1c_orbium_unicaudatus.mp4">"MP4"</a>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
@@ -68,6 +69,7 @@ a = clip(a + dt * grow(conv(a,k)), 0., 1.)
 </video>
 <p>	
   <em>Orbium</em> glider in Lenia CA, kernel radius of 130 and step size dt of 0.01 is 10x finer than typical kr=13, dt=0.1
+  <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid1b_orbium_unicaudatus.mp4">"MP4"</a>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
