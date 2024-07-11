@@ -6,7 +6,7 @@
 ### Note the absence of a clipping procedure in the ALenia update.
 
 {:style="text-align:center;"}
-![Lenia update equation](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_update.png)
+![ALenia update equation](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_update.png)
 
 ```
 given
@@ -20,5 +20,4 @@ a = a + dt * (a - calc_target(conv(k,a)))``
 ```
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_004)
-
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_003) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_005)
