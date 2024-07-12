@@ -21,6 +21,7 @@
 </video>
 <p>	
   An <em>Orbium</em> glider in a Lenia CA ([Chan 2019](https://www.complex-systems.com/abstracts/v28_i03_a01/))
+  <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid0a_orbium_unicaudatus.mp4">"MP4"</a>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->

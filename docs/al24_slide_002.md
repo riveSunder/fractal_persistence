@@ -20,6 +20,7 @@
 </video>
 <p>	
   <em>Orbium</em> glider in Lenia CA, progressively fine simulation. 
+  <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/assets/vid1a_orbium_unicaudatus.mp4">"MP4"</a>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
