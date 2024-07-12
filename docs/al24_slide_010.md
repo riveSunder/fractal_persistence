@@ -1,7 +1,7 @@
 # Cropping gliders 
 
 {:style="text-align:center;"}
-![ALenia glider persistent at low step size dt values](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_glider_crop.png)
+![cropping alenia gliders from CA background](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_glider_crop.png)
 
 ### * Cropping ALenia gliders from background (target function parameters: `mu = 0.12`, `sigma=0.005`)
 

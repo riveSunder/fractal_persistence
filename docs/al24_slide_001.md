@@ -1,4 +1,4 @@
- Continuous Cellular Automata 
+ # Continuous Cellular Automata 
 
 <div align="center">
 
