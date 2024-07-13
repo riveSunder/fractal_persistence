@@ -1,4 +1,4 @@
-# Continuous Cellular Automata 
+# Continuous Cellular Automata: Orbium-type Lenia glider 
 
 <div align="center">
 
@@ -28,10 +28,15 @@
 
 </div>
 
-### If we want more accurate simulation, all we have to do is use more compute!
 
 {:style="text-align:center;"}
 [Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_004)
+
+<br>
+### <strike>If we want more accurate simulation, all we have to do is use more compute!</strike>
+### * ([Davis 2023](https://www.imijournal.org/articles/discretization-dependent-dissolution-of-gliders-in-dis-continuous-systems-non-platonic-self-organization-in-complex-systems)) and ([Davis and Bongard 2022](https://doi.org/10.1162/isal_a_00526)) demonstrated 'non-Platonic' behavior in continuous CA gliders (gliders unstable in simulations too fine).
+### * Work by [Kojima and Ikegami 2023](https://direct.mit.edu/isal/proceedings/isal2023/35/43/116815) found an Orbium glider that is unstable for too small of step size `dt`.
+
 
 <br>
 <div align="center">
