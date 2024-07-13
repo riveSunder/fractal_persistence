@@ -31,4 +31,4 @@
 ### Finer simulation comes at a computational cost.
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002b)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001b) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002b)
