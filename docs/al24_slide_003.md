@@ -28,8 +28,7 @@
 
 </div>
 
-### If we want more accurate simulation, all we have to do is add more compute!
-
+### If we want more accurate simulation, all we have to do is use more compute!
 
 {:style="text-align:center;"}
 [Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_004)

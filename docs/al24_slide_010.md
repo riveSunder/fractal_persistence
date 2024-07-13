@@ -1,4 +1,4 @@
-# Cropping gliders 
+# Discovering a new ALenia glider: cropping gliders
 
 {:style="text-align:center;"}
 ![cropping alenia gliders from CA background](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/alenia_glider_crop.png)

@@ -1,5 +1,4 @@
-# Discovering a new ALenia glider 
-### Just right
+# Asymdrop: a new, orbish ALenia glider 
 
 <div align="center">
 

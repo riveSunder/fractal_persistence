@@ -19,12 +19,12 @@
            title="No video playback capabilities, please download the video below" />
     </object>
   </video>
-</div>
-{:style="text-align:center;"}
-  An <em>Orbium</em> glider in a Lenia CA ([Chan 2019](https://www.complex-systems.com/abstracts/v28_i03_a01/))
+
+  An <em>Orbium</em> glider in a Lenia CA (<a href="https://www.complex-systems.com/abstracts/v28_i03_a01/">[Chan 2019</a>)
   <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid0a_orbium_unicaudatus.mp4">"MP4"</a>
+</div>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
 
 ### We can decrease spatiotemporal discretization parameters `dt` and `1/kr` to more closely approximate the underlying mathematical ideal.

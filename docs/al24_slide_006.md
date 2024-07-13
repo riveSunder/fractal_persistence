@@ -1,4 +1,4 @@
-# Discovering a new ALenia glider 
+# Discovering a new ALenia glider: exploring physical constants 
 ### Too "hot"
 
 <div align="center">
