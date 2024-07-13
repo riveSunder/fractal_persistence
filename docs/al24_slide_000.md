@@ -1,7 +1,8 @@
 # Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia
 
-{:style="text-align:center;"}
-![teaser figure showing instability landscape for asymdrop CA glider](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/asymdrop_dt_mu.png)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/asymdrop_dt_mu.png" width=512 alt="persistence landscape for asymdrop CA glider">
+</div>
 
 ### Q. Tyrell Davis
 {:style="text-align:center;"}
