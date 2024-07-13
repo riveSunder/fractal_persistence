@@ -28,6 +28,7 @@
 </p>
 </div>
 
+<em>This project was influenced by (<a href="https://arxiv.org/abs/2402.06184">Sohl-Dickstein 2024</a>). Sohl-Dickstein's <a href="https://github.com/Sohl-Dickstein/fractal">code</a> was my starting point for coding the zoom animation.</em>
 
 {:style="text-align:center;"}
 [Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_013) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_015)
