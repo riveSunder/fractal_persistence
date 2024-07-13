@@ -2,9 +2,15 @@
 ## Illustrated Lenia ([Chan 2019](https://www.complex-systems.com/abstracts/v28_i03_a01/))
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/neighborhood_equals.png" width=512 alt="illustrated neighborhood convolution">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/neighborhood_equals.png" width=768 alt="illustrated neighborhood convolution">
   <br>
-  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/dgriddt_equals_g_neighborhood.png" width=512 alt="Illustrated Lenia update">
+  <br>
+  <br>
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/dgriddt_equals_g_neighborhood.png" width=768 alt="Illustrated Lenia dgrid/dt">
+  <br>
+  <br>
+  <br>
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/update.png" width=768 alt="Illustrated Lenia update">
 </div>
 
 
