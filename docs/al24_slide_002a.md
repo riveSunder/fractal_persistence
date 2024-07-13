@@ -20,6 +20,7 @@
     </object>
   </video>
 
+  <br>
   An <em>Orbium</em> glider in a Lenia CA (<a href="https://www.complex-systems.com/abstracts/v28_i03_a01/">[Chan 2019</a>)
   <br>
   <strong>Download Video:</strong>

@@ -17,10 +17,11 @@
            title="No video playback capabilities, please download the video below" />
     </object>
   </video>
-<em>Orbium</em> glider in Lenia CA, progressively fine simulation. 
-<br>
-<strong>Download Video:</strong>
-<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid1a_orbium_unicaudatus.mp4">"MP4"</a>
+  <br>
+  <em>Orbium</em> glider in Lenia CA, progressively fine simulation. 
+  <br>
+  <strong>Download Video:</strong>
+  <a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid1a_orbium_unicaudatus.mp4">"MP4"</a>
 </div>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
 
