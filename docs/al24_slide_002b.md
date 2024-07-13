@@ -17,13 +17,11 @@
            title="No video playback capabilities, please download the video below" />
     </object>
   </video>
-</div>
-{:style="text-align:center;"}
-_Orbium_ glider in Lenia CA, progressively fine simulation. 
+<em>Orbium</em> glider in Lenia CA, progressively fine simulation. 
 <br>
-{:style="text-align:center;"}
 <strong>Download Video:</strong>
 <a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid1a_orbium_unicaudatus.mp4">"MP4"</a>
+</div>
 <!-- Open Format:	<a href="__VIDEO__.OGV">"Ogg"</a> -->
 
 ### We can decrease spatiotemporal discretization parameters `dt` and `1/kr` to more closely approximate the underlying mathematical ideal.

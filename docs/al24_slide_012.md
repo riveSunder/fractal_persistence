@@ -20,7 +20,7 @@
 	</object>
 </video>
 <p>	
-  ALenia gliders after cropping 
+  Asymdrop loses stability as dt decreases
   <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid3_alenia_nonplatonic_asymdrop.mp4">"MP4"</a>

@@ -1,8 +1,10 @@
 # Asymptotic Lenia
 
 
+
+
 ### * [Kawaguchi _et al._](https://direct.mit.edu/isal/proceedings/isal2021/33/91/102916) developed an alternative variant of Lenia, replacing the growth function with a target function.
-### * Called "Asymptotic Lenia" (ALenia)
+### * Called "Asymptotic Lenia" (ALenia here). The update is proportional to the difference between grid state and target function output.
 ### * Note the absence of a clipping procedure in the ALenia update.
 
 {:style="text-align:center;"}

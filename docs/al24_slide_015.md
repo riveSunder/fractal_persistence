@@ -1,7 +1,8 @@
 # Questions?
 
-{:style="text-align:center;"}
-![alenia glider summary](https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/asymdrop_fractal_thumbnail.png)
+<div align="center">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/asymdrop_fractal_thumbnail.png" width=768 alt="persistence landscape for asymdrop CA glider">
+</div>
 
 
 {:style="text-align:center;"}

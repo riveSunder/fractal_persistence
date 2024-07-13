@@ -1,4 +1,4 @@
-# Discovering a new ALenia glider 
+# Discovering a new ALenia glider: exploring physical constants 
 ### Just right
 
 <div align="center">
