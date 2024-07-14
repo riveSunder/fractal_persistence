@@ -21,7 +21,7 @@
   </video>
 
   <br>
-  Self-organizing <em>Hydrogeminium natans</em> patterns in Lenia, physical dynamics parameters mu=0.26, sigma=0.036. Locality is defined by a kernel with peaks at mu_k = [0.0938, 0.2814, 0.4690], widths defined by sigma_k = [0.033, 0.033, 0.033], amplitudes [0.5, 1.0, 0.667], and a kernel radius of 31 pixels.
+  Self-organizing <em>Hydrogeminium natans</em> patterns in Lenia, physical dynamics parameters mu=0.26, sigma=0.036. Locality is defined by a kernel with peaks at mu_k = [0.0938, 0.2814, 0.4690], widths defined by sigma_k = [0.033, 0.033, 0.033], amplitudes [0.5, 1.0, 0.667], and a kernel radius of 31 pixels. Step size dt is 0.1. 
   <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid00_hydrogeminium_natans.mp4">"MP4"</a>
