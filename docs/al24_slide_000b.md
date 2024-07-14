@@ -21,7 +21,7 @@
   </video>
 
   <br>
-  An <em>Orbium</em> glider in a Lenia CA (<a href="https://www.complex-systems.com/abstracts/v28_i03_a01/">[Chan 2019</a>)
+  Self-organizing <em>Hydrogeminium natans</em> patterns in Lenia, physical dynamics parameters mu=0.26, sigma=0.036. Locality is defined by a kernel with peaks at mu_k = [0.0938, 0.2814, 0.4690], widths defined by sigma_k = [0.033, 0.033, 0.033], amplitudes [0.5, 1.0, 0.667], and a kernel radius of 31 pixels.
   <br>
   <strong>Download Video:</strong>
 	<a href="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid00_hydrogeminium_natans.mp4">"MP4"</a>
