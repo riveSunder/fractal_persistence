@@ -10,4 +10,4 @@
 {:style="text-align:center;"}
 
 {:style="text-align:center;"}
-[Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001)
+[Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_000b)
