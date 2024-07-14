@@ -15,7 +15,7 @@
       <param name="movie" value="__FLASH__.SWF" />
       <param name="flashvars" value="controlbar=over&amp;image=__POSTER__.JPG&amp;file=https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid00_hydrogeminium_natans.mp4" />
       <!-- fallback image. note the title field below, put the title of the video there -->
-      <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid0a_thumbnail.png" width="512" height="512" alt="thumbnail of _Orbium_ glider"
+      <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/vid00_thumbnail.png" width="512" height="512" alt="thumbnail of _Orbium_ glider"
            title="No video playback capabilities, please download the video below" />
     </object>
   </video>
