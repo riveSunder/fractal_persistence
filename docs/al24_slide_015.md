@@ -1,7 +1,5 @@
 # Questions?
 
-# vid_bonus3_aleniaasymdrop_.mp4
-
 <div align="center">
 
 <!-- 'video for everyone' code snippet from https://camendesign.com/code/video_for_everybody -->
