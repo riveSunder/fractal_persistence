@@ -22,4 +22,4 @@ a = clip(a + dt * grow(conv(a,k)), 0., 1.)
 
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_000) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001b)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_000b) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001b)

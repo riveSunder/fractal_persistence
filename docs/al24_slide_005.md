@@ -14,5 +14,5 @@
 
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_005) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_006)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_004) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_006)
 
