@@ -11,7 +11,10 @@
 * [Code](https://github.com/rivesunder/fractal_persistence)
 * [Paper (ALife proceedings 2024)](https://direct.mit.edu/isal/proceedings/isal2024/36/118/123472?searchresult=1)
 * Paper (ArXiV) _coming soon_
-* Citation: Q. Tyrell Davis; July 22–26, 2024. "Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia." Proceedings of the ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. Online. (pp. 118). ASME. [https://doi.org/10.1162/isal_a_00786](https://doi.org/10.1162/isal_a_00786)
+* Citation:
+
+Q. Tyrell Davis; July 22–26, 2024. "Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia." Proceedings of the ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. Online. (pp. 118). ASME. [https://doi.org/10.1162/isal_a_00786](https://doi.org/10.1162/isal_a_00786)
+
 BibTex:
 ```
 @proceedings{q2024,
