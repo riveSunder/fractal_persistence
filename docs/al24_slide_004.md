@@ -18,7 +18,7 @@ given
 # calc_target: growth function
 # conv: convolution function
 
-a = a + dt * (a - calc_target(conv(k,a)))``
+a = a + dt * (calc_target(conv(k,a)) - a)``
 ```
 
 {:style="text-align:center;"}
