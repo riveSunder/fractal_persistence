@@ -31,4 +31,4 @@
 ### * Rudy Rucker named discretization as the "necessary evil" of simulating continuous CA with computers. ([Rucker 1999](https://www.rudyrucker.com/pdf/rucker_continuous_CAs_in_2D.pdf))
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001b) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002b)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001d) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_002b)

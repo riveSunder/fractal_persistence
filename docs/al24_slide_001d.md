@@ -3,7 +3,7 @@
 ### Compute Next Grid States by Adding the Product of Step Size and Update
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/update.png" width=768 alt="Illustrated Lenia update">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/update.png" width=1000 alt="Illustrated Lenia update">
 </div>
 
 

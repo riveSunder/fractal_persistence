@@ -3,7 +3,7 @@
 ### Compute Neighborhoods by Convolution
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/neighborhood_equals.png" width=768 alt="illustrated neighborhood convolution">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/neighborhood_equals.png" width=970 alt="illustrated neighborhood convolution">
 </div>
 
 

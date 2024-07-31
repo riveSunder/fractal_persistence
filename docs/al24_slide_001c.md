@@ -3,9 +3,9 @@
 ### Compute Growth Function Update
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/dgriddt_equals_g_neighborhood.png" width=768 alt="Illustrated Lenia dgrid/dt">
+  <img src="https://raw.githubusercontent.com/riveSunder/fractal_persistence/master/docs/assets/dgriddt_equals_g_neighborhood.png" width=860 alt="Illustrated Lenia dgrid/dt">
 </div>
 
 
 {:style="text-align:center;"}
-[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001c) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001d)
+[Previous slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001b) -- [Supporting resources](https://rivesunder.github.io/fractal_persistence) -- [Next slide](https://rivesunder.github.io/fractal_persistence/al24_slide_001d)
