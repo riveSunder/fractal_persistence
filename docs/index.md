@@ -10,7 +10,7 @@
 * [Slides (ALife 2024)](https://rivesunder.github.io/fractal_persistence/al24_slide_000)
 * [Code](https://github.com/rivesunder/fractal_persistence)
 * [Paper (ALife proceedings 2024)](https://direct.mit.edu/isal/proceedings/isal2024/36/118/123472?searchresult=1)
-* Paper (ArXiV) _coming soon_
+* [Paper (https://arxiv.org/abs/2407.21086)](https://arxiv.org/abs/2407.21086)
 * Citation:
 
 Q. Tyrell Davis; July 22–26, 2024. "Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia." Proceedings of the ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. ALIFE 2024: Proceedings of the 2024 Artificial Life Conference. Online. (pp. 118). ASME. [https://doi.org/10.1162/isal_a_00786](https://doi.org/10.1162/isal_a_00786)
@@ -34,5 +34,4 @@ BibTex:
 ### The Eidolic Principle: Exploring the Fractal Simuliverse of (dis)Continuous Cellular Automata
 Entry to the 2024 Virtual Creatures Competition at ALife
 * [video (YouTube)](https://www.youtube.com/watch?v=pH1x-6FzmTo)
-* [written description]() _coming soon_
-* Citation _coming soon_
+* [write-up (as appendix to arxiv:2407.21086)](https://arxiv.org/abs/2407.21086)
