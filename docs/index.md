@@ -17,7 +17,7 @@ Q. Tyrell Davis; July 22–26, 2024. "Non-Platonic Autopoiesis of a Cellular Aut
 
 BibTex:
 ```
-@proceedings{q2024,
+@proceedings{davis2024,
     author = {Davis, Q. Tyrell},
     title = "{Non-Platonic Autopoiesis of a Cellular Automaton Glider in Asymptotic Lenia}",
     volume = {ALIFE 2024: Proceedings of the 2024 Artificial Life Conference},
