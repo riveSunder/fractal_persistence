@@ -17,8 +17,8 @@ matplotlib.rcParams["animation.embed_limit"] = 1024
 import skimage
 import skimage.io as sio
 import skimage.transform
-import fracatal
 
+import fracatal
 from fracatal.functional_pt.convolve import ft_convolve
 from fracatal.functional_pt.pad import pad_2d
 from fracatal.functional_pt.metrics import compute_entropy, \
