@@ -202,7 +202,6 @@ def mantle(pattern, make_kernel, \
       mus = torch.tensor([min_mu])[:,None,None,None]
       active_mu = False
 
-
     if max_dt is not None:
       max_dt, min_dt = max([max_dt, min_dt]), min([max_dt, min_dt])
       if max_mu is None:
